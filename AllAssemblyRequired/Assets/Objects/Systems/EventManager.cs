@@ -21,7 +21,7 @@ public class EventManager : MonoBehaviour
 
     private void Update() {
         if (Input.GetKeyDown("space")) {
-            triggerAnimationStart(1);
+            triggerAnimationStart(2);
         }    
 
         if (Input.GetKeyDown("w")) {

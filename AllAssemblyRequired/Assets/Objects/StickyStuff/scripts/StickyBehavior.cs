@@ -7,6 +7,7 @@ public class StickyBehavior : MonoBehaviour
     // Start is called before the first frame update
     public string animationID;
     public bool isRoot = false;
+    private bool connectedToRoot = false;
     protected bool isConnected = false;
     public int id = 0;
     public float forceStrength = 0.0f;
@@ -32,7 +33,6 @@ public class StickyBehavior : MonoBehaviour
     void Update()
     {
         rigidBodyComp.AddForce(currentForce * forceStrength);
-        print(currentForce);
     }
 
     void addForce(int requestId, string forceDirection) {
@@ -84,7 +84,7 @@ public class StickyBehavior : MonoBehaviour
     }
 
     void playAnimation(int requestId) {
-        if (id == requestId) {
+        if (isConnected && id == requestId) {
            Animator animator = gameObject.GetComponent<Animator>();
             if (animator != null) {
                 animator.Play(animationID, -1, 0f);
@@ -94,6 +94,10 @@ public class StickyBehavior : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
+        if (isRoot == false && connectedToRoot == false) {
+            return;
+        }
+
         GameObject collidingObject = collision.gameObject;
         StickyBehavior state = collidingObject.GetComponent<StickyBehavior>();
 
@@ -102,6 +106,8 @@ public class StickyBehavior : MonoBehaviour
             if (joint != null && state != null) {
                 joint.connectedBody = rigidBodyComp;
                 isConnected = true;
+                state.isConnected = true;
+                state.connectedToRoot = true;
             }
         }
     }
