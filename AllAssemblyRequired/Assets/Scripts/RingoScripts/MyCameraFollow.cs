@@ -3,25 +3,34 @@
 
 using UnityEngine;
 using System.Linq;
+using System.Collections.Generic;
 
 public class MyCameraFollow : MonoBehaviour
 {
-	[SerializeField] float smoothing = 5f;							//Amount of smoothing to apply to the cameras movement
-	[SerializeField] Vector3 offset = new Vector3 (0f, 15f, -22f);	//The offset of the camera from the player (how far back and above the player the camera should be)
+    [SerializeField]
+    private List<GameObject> Players;
+    public LayerMask TransparentLayerMask;
+    public float goalAlpha;
+    public Material TranspMaterial;
 
-	//FixedUpdate is used to handle physics based code. No physics code exists in this FixedUpdate, but since the player's movement code
-	//is handled in FixedUpdate, we are moving the camera in FixedUpdate as well so that they stay in sync
-	void FixedUpdate ()
-	{
-        //Use the player's position and offset to determine where the camera should be
-        var players = MyGameManager.Instance.Players;
+    private void Update()
+    {
+        foreach(var player in Players) 
+        {
+            var distance = Vector3.Distance(player.transform.position, transform.position);
+            Debug.DrawRay(transform.position, transform.forward * distance, Color.green);
+            var hits = Physics.RaycastAll(transform.position, transform.forward, distance, TransparentLayerMask);
+            if (hits.Length > 0)
+            {
+                Debug.Log(string.Join(",", hits.Select(hit => hit.collider.gameObject.name)));
+            }
+        }
+    }
 
-        //TODO: for now lets just assume we have one player
-        var targetCamPos = players.First().transform.position + offset;
+    public void FadeOut(GameObject obj, float alpha)
+    {
+        var color = obj.gameObject.GetComponent<Renderer>().material.color;
+        color.a = 0.5f;
 
-		//Smoothly move from the current position to the desired position using a Lerp, which is short
-		//for linear interpolation. Basically, it takes where you are, where you want to be, and an amount of time
-		//and then tells you where you will be along that line
-		transform.position = Vector3.Lerp (transform.position, targetCamPos, smoothing * Time.deltaTime);
-	}
+    }
 }
