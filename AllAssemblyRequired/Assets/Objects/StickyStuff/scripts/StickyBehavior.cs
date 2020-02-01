@@ -140,12 +140,14 @@ public class StickyBehavior : MonoBehaviour
                 isConnected = true;
                 state.isConnected = true;
                 state.connectedToRoot = true;
+                state.playAttachmentSound();
             }
         }
     }
 
     void playAttachmentSound() {
         if (attachmentAudioClip != null) {
+            print("sound");
             SoundManager.Instance.PlaySoundFX(attachmentAudioClip, gameObject);
         }
     }
