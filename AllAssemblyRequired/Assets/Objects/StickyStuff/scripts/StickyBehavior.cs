@@ -7,6 +7,10 @@ public class StickyBehavior : MonoBehaviour
     // Start is called before the first frame update
     public string animationID;
     public bool isRoot = false;
+    public int jointBreakForce = 200000;
+    public AudioClip attachmentAudioClip;
+
+    private bool connectedToRoot = false;
     protected bool isConnected = false;
     public int id = 0;
     public float forceStrength = 0.0f;
@@ -32,7 +36,33 @@ public class StickyBehavior : MonoBehaviour
     void Update()
     {
         rigidBodyComp.AddForce(currentForce * forceStrength);
-        //print(currentForce);
+    }
+
+    private void OnJointBreak(float breakForce) {
+        breakConnection();
+    }
+
+    void breakConnection() {
+        FixedJoint joint = gameObject.GetComponent<FixedJoint>();
+        isConnected = false;
+        connectedToRoot = false;
+
+        if (joint != null) {
+            Rigidbody childBody = joint.connectedBody;
+            
+            if (childBody != null) {
+                GameObject child = childBody.gameObject;
+
+                if (child != null) {
+                    StickyBehavior sticky = child.GetComponent<StickyBehavior>();
+                    sticky.breakConnection();
+                }
+            }
+            
+            
+            print("destroying connection: " + gameObject.name);
+            Destroy(joint);
+        }
     }
 
     void addForce(int requestId, string forceDirection) {
@@ -84,7 +114,7 @@ public class StickyBehavior : MonoBehaviour
     }
 
     void playAnimation(int requestId) {
-        if (id == requestId) {
+        if (isConnected && id == requestId) {
            Animator animator = gameObject.GetComponent<Animator>();
             if (animator != null) {
                 animator.Play(animationID, -1, 0f);
@@ -94,15 +124,31 @@ public class StickyBehavior : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
+        if (isRoot == false && connectedToRoot == false) {
+            return;
+        }
+
         GameObject collidingObject = collision.gameObject;
         StickyBehavior state = collidingObject.GetComponent<StickyBehavior>();
 
         if (collidingObject.layer == stickyLayer && state != null && state.isConnected == false) {
             FixedJoint joint = collidingObject.AddComponent<FixedJoint>();
             if (joint != null && state != null) {
+                print("connected");
                 joint.connectedBody = rigidBodyComp;
+                joint.breakForce = jointBreakForce;
                 isConnected = true;
+                state.isConnected = true;
+                state.connectedToRoot = true;
+                state.playAttachmentSound();
             }
+        }
+    }
+
+    void playAttachmentSound() {
+        if (attachmentAudioClip != null) {
+            print("sound");
+            SoundManager.Instance.PlaySoundFX(attachmentAudioClip, gameObject);
         }
     }
 }
