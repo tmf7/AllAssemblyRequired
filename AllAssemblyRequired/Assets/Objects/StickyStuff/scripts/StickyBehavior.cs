@@ -7,6 +7,7 @@ public class StickyBehavior : MonoBehaviour
     // Start is called before the first frame update
     public string animationID;
     public bool isRoot = false;
+    public int jointBreakForce = 200000;
     private bool connectedToRoot = false;
     protected bool isConnected = false;
     public int id = 0;
@@ -33,6 +34,33 @@ public class StickyBehavior : MonoBehaviour
     void Update()
     {
         rigidBodyComp.AddForce(currentForce * forceStrength);
+    }
+
+    private void OnJointBreak(float breakForce) {
+        breakConnection();
+    }
+
+    void breakConnection() {
+        FixedJoint joint = gameObject.GetComponent<FixedJoint>();
+        isConnected = false;
+        connectedToRoot = false;
+
+        if (joint != null) {
+            Rigidbody childBody = joint.connectedBody;
+            
+            if (childBody != null) {
+                GameObject child = childBody.gameObject;
+
+                if (child != null) {
+                    StickyBehavior sticky = child.GetComponent<StickyBehavior>();
+                    sticky.breakConnection();
+                }
+            }
+            
+            
+            print("destroying connection: " + gameObject.name);
+            Destroy(joint);
+        }
     }
 
     void addForce(int requestId, string forceDirection) {
@@ -104,7 +132,9 @@ public class StickyBehavior : MonoBehaviour
         if (collidingObject.layer == stickyLayer && state != null && state.isConnected == false) {
             FixedJoint joint = collidingObject.AddComponent<FixedJoint>();
             if (joint != null && state != null) {
+                print("connected");
                 joint.connectedBody = rigidBodyComp;
+                joint.breakForce = jointBreakForce;
                 isConnected = true;
                 state.isConnected = true;
                 state.connectedToRoot = true;
