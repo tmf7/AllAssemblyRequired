@@ -6,20 +6,53 @@ public class StickyBehavior : MonoBehaviour
 {
     // Start is called before the first frame update
     public string animationID;
-    public bool isConnected = false;
+    public bool isRoot = false;
+    protected bool isConnected = false;
     public int id = 0;
+    public float forceStrength = 1.0f;
+    private Rigidbody rigidBodyComp;
     private void Awake() {
         gameObject.tag = "sticky";
+        rigidBodyComp = gameObject.GetComponent<Rigidbody>();
+
+        if (isRoot == true) {
+            rigidBodyComp.mass = 2.5f;
+        }
     }
     void Start()
     {
         EventManager.current.onAnimationStart += playAnimation;
+        EventManager.current.onAddForce += addForce;
     }
 
     // Update is called once per frame
     void Update()
     {
         
+    }
+
+    void addForce(int requestId, string forceDirection) {
+        if (isRoot == false) {
+            return;
+        } else if (id == requestId) {
+            switch(forceDirection) {
+                case "forward":
+                    rigidBodyComp.AddForce(Vector3.forward * forceStrength);
+                    break;
+                case "backward":
+                    rigidBodyComp.AddForce(Vector3.forward * -1 * forceStrength);
+                    break;
+                case "right":
+                    rigidBodyComp.AddForce(Vector3.right * forceStrength);
+                    break;
+                case "left":
+                    rigidBodyComp.AddForce(Vector3.right * -1 * forceStrength);
+                    break;
+                default:
+                    print("unknown force direction " + forceDirection);
+                    break;
+            }
+        } 
     }
 
     void playAnimation(int requestId) {
@@ -39,7 +72,7 @@ public class StickyBehavior : MonoBehaviour
         if (collidingObject.tag == "sticky" && state != null && state.isConnected == false) {
             FixedJoint joint = collidingObject.AddComponent<FixedJoint>();
             if (joint != null && state != null) {
-                joint.connectedBody = gameObject.GetComponent<Rigidbody>();
+                joint.connectedBody = rigidBodyComp;
                 state.isConnected = true;
                 isConnected = true;
             }
