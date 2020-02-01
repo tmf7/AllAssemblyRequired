@@ -8,6 +8,8 @@ public class StickyBehavior : MonoBehaviour
     public string animationID;
     public bool isRoot = false;
     public int jointBreakForce = 200000;
+    public AudioClip attachmentAudioClip;
+
     private bool connectedToRoot = false;
     protected bool isConnected = false;
     public int id = 0;
@@ -139,6 +141,12 @@ public class StickyBehavior : MonoBehaviour
                 state.isConnected = true;
                 state.connectedToRoot = true;
             }
+        }
+    }
+
+    void playAttachmentSound() {
+        if (attachmentAudioClip != null) {
+            SoundManager.Instance.PlaySoundFX(attachmentAudioClip, gameObject);
         }
     }
 }
