@@ -12,6 +12,12 @@ public class EventManager : MonoBehaviour
         current = this;
     }
 
+    private void Update() {
+        if (Input.GetKeyDown("space")) {
+            triggerAnimationStart(1);
+        }    
+    }
+
     
     public void triggerAnimationStart(int id) {
         if (onAnimationStart != null) {
