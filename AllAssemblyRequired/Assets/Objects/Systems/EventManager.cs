@@ -10,6 +10,7 @@ public class EventManager : MonoBehaviour
     public event Action<int> onAnimationEnd;
     public event Action<int, string> onAddForce;
     public event Action<int, string> onStopForce;
+    public event Action onButtonPress;
     
     private void Awake() {
         current = this;
@@ -57,6 +58,11 @@ public class EventManager : MonoBehaviour
         }
     }
 
+    public void triggerDoors() {
+        if (onButtonPress != null) {
+            onButtonPress();
+        }
+    }
     public void triggerForce(int objectId, string forceDirection) {
         if (onAddForce != null) {
             onAddForce(objectId, forceDirection);

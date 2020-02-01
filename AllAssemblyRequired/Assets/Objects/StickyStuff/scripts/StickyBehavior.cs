@@ -134,7 +134,6 @@ public class StickyBehavior : MonoBehaviour
         if (collidingObject.layer == stickyLayer && state != null && state.isConnected == false) {
             FixedJoint joint = collidingObject.AddComponent<FixedJoint>();
             if (joint != null && state != null) {
-                print("connected");
                 joint.connectedBody = rigidBodyComp;
                 joint.breakForce = jointBreakForce;
                 isConnected = true;
@@ -147,7 +146,6 @@ public class StickyBehavior : MonoBehaviour
 
     void playAttachmentSound() {
         if (attachmentAudioClip != null) {
-            print("sound");
             SoundManager.Instance.PlaySoundFX(attachmentAudioClip, gameObject);
         }
     }
