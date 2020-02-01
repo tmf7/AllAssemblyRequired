@@ -9,26 +9,30 @@ public class StickyBehavior : MonoBehaviour
     public bool isRoot = false;
     protected bool isConnected = false;
     public int id = 0;
-    public float forceStrength = 1.0f;
+    public float forceStrength = 0.0f;
     private Rigidbody rigidBodyComp;
+    public int stickyLayer = 20;
+    private Vector3 currentForce;
     private void Awake() {
-        gameObject.tag = "sticky";
+        gameObject.layer = stickyLayer;
         rigidBodyComp = gameObject.GetComponent<Rigidbody>();
 
-        if (isRoot == true) {
-            rigidBodyComp.mass = 2.5f;
+        if (rigidBodyComp == null) {
+            gameObject.AddComponent<Rigidbody>();
         }
     }
     void Start()
     {
         EventManager.current.onAnimationStart += playAnimation;
         EventManager.current.onAddForce += addForce;
+        EventManager.current.onStopForce += stopForce;
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        rigidBodyComp.AddForce(currentForce * forceStrength);
+        print(currentForce);
     }
 
     void addForce(int requestId, string forceDirection) {
@@ -37,16 +41,40 @@ public class StickyBehavior : MonoBehaviour
         } else if (id == requestId) {
             switch(forceDirection) {
                 case "forward":
-                    rigidBodyComp.AddForce(Vector3.forward * forceStrength);
+                    currentForce.z += 1;
                     break;
                 case "backward":
-                    rigidBodyComp.AddForce(Vector3.forward * -1 * forceStrength);
+                    currentForce.z -= 1;
                     break;
                 case "right":
-                    rigidBodyComp.AddForce(Vector3.right * forceStrength);
+                    currentForce.x += 1;
                     break;
                 case "left":
-                    rigidBodyComp.AddForce(Vector3.right * -1 * forceStrength);
+                    currentForce.x -= 1;
+                    break;
+                default:
+                    print("unknown force direction " + forceDirection);
+                    break;
+            }
+        } 
+    }
+
+    void stopForce(int requestId, string forceDirection) {
+        if (isRoot == false) {
+            return;
+        } else if (id == requestId) {
+            switch(forceDirection) {
+                case "forward":
+                    currentForce.z -= 1;
+                    break;
+                case "backward":
+                    currentForce.z += 1;
+                    break;
+                case "right":
+                    currentForce.x -= 1;
+                    break;
+                case "left":
+                    currentForce.x += 1;
                     break;
                 default:
                     print("unknown force direction " + forceDirection);
@@ -69,11 +97,10 @@ public class StickyBehavior : MonoBehaviour
         GameObject collidingObject = collision.gameObject;
         StickyBehavior state = collidingObject.GetComponent<StickyBehavior>();
 
-        if (collidingObject.tag == "sticky" && state != null && state.isConnected == false) {
+        if (collidingObject.layer == stickyLayer && state != null && state.isConnected == false) {
             FixedJoint joint = collidingObject.AddComponent<FixedJoint>();
             if (joint != null && state != null) {
                 joint.connectedBody = rigidBodyComp;
-                state.isConnected = true;
                 isConnected = true;
             }
         }
