@@ -147,7 +147,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3348175}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 582d616f50bd74dd3b39aa2b1890c15e, type: 3}
+  m_Script: {fileID: 11500000, guid: 20fdedfa6b0dd41d8b3820e17b046fdc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   Players:
@@ -486,11 +486,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1488437037}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4577b7b34702a4701b6779705a61f1fa, type: 3}
+  m_Script: {fileID: 11500000, guid: 4f5fad17348be46e99f192822f053666, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   smoothing: 5
-  offset: {x: 0, y: 15, z: -25}
+  offset: {x: 0, y: 15, z: -22}
 --- !u!136 &1596140284
 CapsuleCollider:
   m_ObjectHideFlags: 0
