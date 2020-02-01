@@ -14,6 +14,10 @@ public class EventManager : MonoBehaviour
         current = this;
     }
 
+    private void Start() {
+        Cursor.visible = true;
+    }
+
     private void Update() {
         if (Input.GetKeyDown("space")) {
             triggerAnimationStart(1);
