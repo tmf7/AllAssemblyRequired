@@ -32,7 +32,7 @@ public class StickyBehavior : MonoBehaviour
     void Update()
     {
         rigidBodyComp.AddForce(currentForce * forceStrength);
-        print(currentForce);
+        //print(currentForce);
     }
 
     void addForce(int requestId, string forceDirection) {
