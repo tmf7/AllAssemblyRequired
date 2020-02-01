@@ -9,6 +9,7 @@ public class EventManager : MonoBehaviour
     public event Action<int> onAnimationStart;
     public event Action<int> onAnimationEnd;
     public event Action<int, string> onAddForce;
+    public event Action<int, string> onStopForce;
     
     private void Awake() {
         current = this;
@@ -38,6 +39,22 @@ public class EventManager : MonoBehaviour
         if (Input.GetKeyDown("d")) {
             triggerForce(1, "right");
         }
+
+        if (Input.GetKeyUp("w")) {
+            stopForce(1, "forward");
+        }
+
+        if (Input.GetKeyUp("s")) {
+            stopForce(1, "backward");
+        }
+
+        if (Input.GetKeyUp("a")) {
+            stopForce(1, "left");
+        }
+
+        if (Input.GetKeyUp("d")) {
+            stopForce(1, "right");
+        }
     }
 
     public void triggerForce(int objectId, string forceDirection) {
@@ -46,6 +63,11 @@ public class EventManager : MonoBehaviour
         }
     }
 
+    public void stopForce(int objectId, string forceDirection) {
+        if (onStopForce != null) {
+            onStopForce(objectId, forceDirection);
+        }
+    }
     
     public void triggerAnimationStart(int objectId) {
         if (onAnimationStart != null) {
