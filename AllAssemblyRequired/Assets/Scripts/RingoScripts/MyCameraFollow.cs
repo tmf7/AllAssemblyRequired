@@ -9,10 +9,12 @@ public class MyCameraFollow : MonoBehaviour
 {
     [SerializeField]
     private List<GameObject> Players;
-    public LayerMask TransparentLayerMask;
+    [SerializeField]
+    private LayerMask TransparentLayerMask;
+    [SerializeField]
+    private Material TransparentMaterial;
 
-    public float goalAlpha;
-    private List<GameObject> IsTransparent = new List<GameObject>();
+    private Dictionary<GameObject, Material> IsTransparent = new Dictionary<GameObject, Material>();
 
     private void Update()
     {
@@ -24,25 +26,28 @@ public class MyCameraFollow : MonoBehaviour
             return detectedhits.Select(h => h.collider.gameObject);
         }).ToList();
 
-        var removal = IsTransparent.Except(hits).ToList();
+
+        //remove the one that is 
+        var keys = IsTransparent.Keys;
+        var removal = keys.Except(hits).ToList();
         foreach (var noTransObject in removal)
         {
-            Fade(noTransObject, 1f);
+            Fade(noTransObject, IsTransparent[noTransObject]);
             IsTransparent.Remove(noTransObject);
         }
 
-        var newHits = hits.Except(IsTransparent).ToList();
+        var newHits = hits.Except(keys).ToList();
         foreach (var newTransObj in newHits) 
         {
-            Fade(newTransObj, goalAlpha);
-            IsTransparent.Add(newTransObj);
+            var oldMat = Fade(newTransObj, TransparentMaterial);
+            IsTransparent.Add(newTransObj, oldMat);
         }
     }
 
-    public void Fade(GameObject obj, float alpha)
+    public Material Fade(GameObject obj, Material newMat)
     {
-        var color = obj.GetComponent<Renderer>().material.color;
-        color.a = alpha;
-        obj.GetComponent<Renderer>().material.color = color;
+        var m = obj.GetComponent<Renderer>().material;
+        obj.GetComponent<Renderer>().material = newMat;
+        return m;
     }
 }
