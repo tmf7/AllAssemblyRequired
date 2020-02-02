@@ -8,6 +8,7 @@ public class StickyBehavior : MonoBehaviour
     public string animationID = "move";
     public bool isRoot = false;
     public int jointBreakForce = 200000;
+    public float maxSpeed = 20f;
     public AudioClip attachmentAudioClip;
 
     private bool connectedToRoot = false;
@@ -40,6 +41,10 @@ public class StickyBehavior : MonoBehaviour
     void Update()
     {
         rigidBodyComp.AddForce(currentForce * forceStrength);
+
+        if(rigidBodyComp.velocity.magnitude > maxSpeed){
+             rigidBodyComp.velocity = Vector3.ClampMagnitude(rigidBodyComp.velocity, maxSpeed);
+         }
     }
 
     private void OnJointBreak(float breakForce) {
