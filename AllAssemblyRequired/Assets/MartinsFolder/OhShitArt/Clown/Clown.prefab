@@ -262,7 +262,7 @@ GameObject:
   - component: {fileID: 1375998218893500630}
   m_Layer: 0
   m_Name: Clown
-  m_TagString: Untagged
+  m_TagString: sticky
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967295

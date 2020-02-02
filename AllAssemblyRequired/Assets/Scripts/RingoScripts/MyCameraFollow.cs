@@ -20,13 +20,16 @@ public class MyCameraFollow : MonoBehaviour
 
     private void FixedUpdate()
     {
-        Vector3 targetCamPos = Players.First().transform.position + offset;
-        transform.position = Vector3.Lerp(transform.position, targetCamPos, smoothing * Time.deltaTime);
+        if(MyGameManager.Instance.Player != null)
+        {
+            Vector3 targetCamPos = MyGameManager.Instance.Player.transform.position + offset;
+            transform.position = Vector3.Lerp(transform.position, targetCamPos, smoothing * Time.deltaTime);
+        }
     }
 
     private void Update()
     {
-        var hits = Players.SelectMany(player =>
+        var hits = (new List<GameObject>() { MyGameManager.Instance.Player }).SelectMany(player =>
         {
             var distance = Vector3.Distance(player.transform.position, transform.position);
             //Debug.DrawRay(transform.position, transform.forward * distance, Color.green);
