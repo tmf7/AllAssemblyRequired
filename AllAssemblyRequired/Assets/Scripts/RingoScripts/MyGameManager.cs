@@ -13,8 +13,7 @@ public enum GameState
 public class MyGameManager : MonoBehaviour
 {
     public static MyGameManager Instance;             //This script, like MouseLocation, has a public static reference to itself to that other scripts
-    public List<GameObject> Prefabs;
-    public List<GameObject> Players;
+    public List<GameObject> Assets;
     public int PlayerCount = 1;
     public Transform SpawnOrigin;
 
@@ -47,12 +46,15 @@ public class MyGameManager : MonoBehaviour
         {
             case (GameState.Spawn):
             {
-                if(this.maxParts == 0) {
-                    this.State = GameState.Playing;
-                } else if(maxParts == 1) {
-                    this.Spawn(true);
-                }
-                this.Spawn();
+                    //if(this.maxParts == 0) {
+                    //} else if(maxParts == 1) {
+                    //    this.Spawn(true);
+                    //}
+                    //this.Spawn();
+                var stickyObj = GameObject.FindGameObjectsWithTag("Sticky");
+                var rootIndex = Random.Range(0, stickyObj.Length - 1);
+                
+                this.State = GameState.Playing;
                 break;
             }
             case (GameState.Playing):
