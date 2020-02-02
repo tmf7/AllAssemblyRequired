@@ -623,7 +623,7 @@ MonoBehaviour:
   isRoot: 0
   jointBreakForce: 150000
   attachmentAudioClip: {fileID: 0}
-  id: 2
+  id: 3
   forceStrength: 0
   stickyLayer: 20
 --- !u!95 &3134683925917099415

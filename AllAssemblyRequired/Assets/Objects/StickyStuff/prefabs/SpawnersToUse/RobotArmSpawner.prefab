@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6311435188632904403}
   - component: {fileID: 6311435188632904407}
   m_Layer: 0
-  m_Name: StickySpawner
+  m_Name: RobotArmSpawner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -43,4 +43,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e56204287addd4b0ca4e2bf5ae6f693c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Spawnables: []
+  Spawnables:
+  - {fileID: 6634283635642920916, guid: bf7c75cab119440ce8b7f0302c91dedd, type: 3}
+  - {fileID: 8030863882466835658, guid: fede2a48ce0ae4a1daa407c8901e0667, type: 3}

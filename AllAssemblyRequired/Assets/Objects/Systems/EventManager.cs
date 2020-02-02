@@ -21,9 +21,16 @@ public class EventManager : MonoBehaviour
     }
 
     private void Update() {
+        // index 2 mapped to robot's right arm
         if (Input.GetKeyDown("space")) {
             triggerAnimationStart(2);
-        }    
+        } 
+
+        // index 3 mapped to robot's left arm
+        // change key value unless space will move both arms
+        // if (Input.GetKeyDown("space")) {
+        //     triggerAnimationStart(3);
+        // }       
 
         if (Input.GetKeyDown("w")) {
             triggerForce(1, "forward");
