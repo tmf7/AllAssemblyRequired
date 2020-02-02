@@ -16,7 +16,7 @@ public class CameraFollow : MonoBehaviour
 		//Smoothly move from the current position to the desired position using a Lerp, which is short
 		//for linear interpolation. Basically, it takes where you are, where you want to be, and an amount of time
 		//and then tells you where you will be along that line
-		transform.position = Vector3.Lerp (transform.position, targetCamPos, smoothing * Time.deltaTime);
+		transform.position = Vector3.Lerp(transform.position, targetCamPos, smoothing * Time.deltaTime);
 	}
 }
 
