@@ -20,7 +20,7 @@ public class MyCameraFollow : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if(MyGameManager.Instance.Player != null)
+        if(MyGameManager.Instance?.Player != null)
         {
             Vector3 targetCamPos = MyGameManager.Instance.Player.transform.position + offset;
             transform.position = Vector3.Lerp(transform.position, targetCamPos, smoothing * Time.deltaTime);

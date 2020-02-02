@@ -13,7 +13,11 @@ public class EventManager : MonoBehaviour
     public event Action onButtonPress;
     
     private void Awake() {
-        current = this;
+        if (current == null) {
+            current = this;
+        }
+         else if (current != this)
+            Destroy(this);
     }
 
     private void Start() {

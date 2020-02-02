@@ -40,9 +40,7 @@ public class StickyBehavior : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Debug.Log("i am being triggered with" + currentForce.ToString());
         rigidBodyComp.AddForce(currentForce * forceStrength);
-
         if(rigidBodyComp.velocity.magnitude > maxSpeed){
              rigidBodyComp.velocity = Vector3.ClampMagnitude(rigidBodyComp.velocity, maxSpeed);
          }
