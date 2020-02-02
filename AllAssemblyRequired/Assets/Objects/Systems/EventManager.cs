@@ -27,10 +27,14 @@ public class EventManager : MonoBehaviour
         } 
 
         // index 3 mapped to robot's left arm
-        // change key value unless space will move both arms
-        // if (Input.GetKeyDown("space")) {
-        //     triggerAnimationStart(3);
-        // }       
+        if (Input.GetKeyDown("r")) {
+            triggerAnimationStart(3);
+        }
+
+        // index 4 mapped to octopus legs
+        if (Input.GetKeyDown("t")) {
+            triggerAnimationStart(4);
+        }            
 
         if (Input.GetKeyDown("w")) {
             triggerForce(1, "forward");

@@ -5,7 +5,7 @@ using UnityEngine;
 public class StickyBehavior : MonoBehaviour
 {
     // Start is called before the first frame update
-    public string animationID;
+    public string animationID = "move";
     public bool isRoot = false;
     public int jointBreakForce = 200000;
     public AudioClip attachmentAudioClip;

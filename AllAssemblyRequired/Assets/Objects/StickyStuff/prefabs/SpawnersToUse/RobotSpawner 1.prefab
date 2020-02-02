@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6311435188632904403}
   - component: {fileID: 6311435188632904407}
   m_Layer: 0
-  m_Name: RobotArmSpawner
+  m_Name: RobotSpawner 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -46,3 +46,7 @@ MonoBehaviour:
   Spawnables:
   - {fileID: 6634283635642920916, guid: bf7c75cab119440ce8b7f0302c91dedd, type: 3}
   - {fileID: 8030863882466835658, guid: fede2a48ce0ae4a1daa407c8901e0667, type: 3}
+  - {fileID: 1666711576193938458, guid: 7f5688bf9e3ef4e28a18b44a2181dfdf, type: 3}
+  - {fileID: 4813852410930489677, guid: cbbf7d0a36f164a50acc598caf1cebe1, type: 3}
+  - {fileID: 7070628310552713865, guid: 923685cee34814a42959d1de7a76f79e, type: 3}
+  - {fileID: 8983308068830617946, guid: c1f2d8187e8f64b198e43e13bfbc437a, type: 3}
