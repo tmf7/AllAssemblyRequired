@@ -13,9 +13,11 @@ public enum GameState
 public class MyGameManager : MonoBehaviour
 {
     public static MyGameManager Instance;             //This script, like MouseLocation, has a public static reference to itself to that other scripts
-    public List<GameObject> Players;
     public List<GameObject> Prefabs;
+    public List<GameObject> Players;
+    public int PlayerCount = 1;
     public Transform SpawnOrigin;
+
     public int maxParts = 10;
 
     //[SerializeField]
@@ -36,7 +38,6 @@ public class MyGameManager : MonoBehaviour
 
     private void Start()
     {
-
     }
 
     // Update is called once per frame
@@ -52,7 +53,7 @@ public class MyGameManager : MonoBehaviour
                     this.Spawn(true);
                 }
                 this.Spawn();
-                    break;
+                break;
             }
             case (GameState.Playing):
             {
@@ -61,7 +62,6 @@ public class MyGameManager : MonoBehaviour
             }
             case (GameState.End):
             {
-
                     break;
             }
             default:
@@ -74,22 +74,22 @@ public class MyGameManager : MonoBehaviour
 
     void Spawn(bool isRoot = false)
     {
-        var max = this.Prefabs.Count() - 1;
-        var index = Random.Range(0, max);
-        var chosenPrefab = this.Prefabs[index];
+        //var max = this.Prefabs.Count() - 1;
+        //var index = Random.Range(0, max);
+        //var chosenPrefab = this.Prefabs[index];
 
-        var newObj = Instantiate(chosenPrefab);
+        //var newObj = Instantiate(chosenPrefab);
 
-        if(isRoot == true)
-        {
-            newObj.GetComponent<StickyBehavior>().isRoot = true;
-        }
-
+        //if(isRoot == true)
+        //{
+        //    newObj.GetComponent<StickyBehavior>().isRoot = true;
+        //}
         //create the game object at spawner
         this.maxParts -= 1;
     }
 
-    void SpawnMotion(GameObject obj) {
-
+    void SpawnMotion(GameObject obj, GameObject targetSpawn) {
+        //fly up
+       
     }
 }
