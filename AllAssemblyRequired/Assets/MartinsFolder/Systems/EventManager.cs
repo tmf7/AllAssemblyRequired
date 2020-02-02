@@ -34,7 +34,11 @@ public class EventManager : MonoBehaviour
         // index 4 mapped to octopus legs
         if (Input.GetKeyDown("t")) {
             triggerAnimationStart(4);
-        }            
+        }
+
+        if (Input.GetKeyDown("y")) {
+            triggerAnimationStart(5);
+        }          
 
         if (Input.GetKeyDown("w")) {
             triggerForce(1, "forward");
