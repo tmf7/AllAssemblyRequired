@@ -24,6 +24,10 @@ public class StickyBehavior : MonoBehaviour
         if (rigidBodyComp == null) {
             gameObject.AddComponent<Rigidbody>();
         }
+
+        if (isRoot) {
+            isConnected = true;
+        }
     }
     void Start()
     {
