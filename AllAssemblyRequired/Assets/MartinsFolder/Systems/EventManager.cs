@@ -10,8 +10,12 @@ public class EventManager : MonoBehaviour
     public event Action<int> onAnimationEnd;
     public event Action<int, string> onAddForce;
     public event Action<int, string> onStopForce;
+    public event Action<int> onForceBreak;
     public event Action onButtonPress;
-    
+
+    [SerializeField]
+    private float force = 1f;
+
     private void Awake() {
         if (current == null) {
             current = this;
@@ -75,11 +79,17 @@ public class EventManager : MonoBehaviour
         if (Input.GetKeyUp("d")) {
             stopForce(1, "right");
         }
+
+        if(Input.GetKeyDown("q"))
+        {
+            onForceBreak(1);
+        }
     }
 
     public void triggerDoors() {
         if (onButtonPress != null) {
             onButtonPress();
+            MyGameManager.Instance.EndGame();
         }
     }
     public void triggerForce(int objectId, string forceDirection) {

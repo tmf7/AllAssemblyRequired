@@ -127,6 +127,7 @@ MonoBehaviour:
   animationID: 
   isRoot: 0
   jointBreakForce: 200000
+  maxSpeed: 20
   attachmentAudioClip: {fileID: 0}
   id: 0
   forceStrength: 0
@@ -259,6 +260,7 @@ MonoBehaviour:
   animationID: 
   isRoot: 0
   jointBreakForce: 200000
+  maxSpeed: 20
   attachmentAudioClip: {fileID: 0}
   id: 0
   forceStrength: 0
@@ -390,6 +392,7 @@ MonoBehaviour:
   animationID: 
   isRoot: 0
   jointBreakForce: 200000
+  maxSpeed: 20
   attachmentAudioClip: {fileID: 0}
   id: 0
   forceStrength: 0
@@ -407,7 +410,7 @@ GameObject:
   - component: {fileID: -1556783851520123857}
   m_Layer: 0
   m_Name: Robot_Leg_right_A
-  m_TagString: Untagged
+  m_TagString: sticky
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -446,9 +449,10 @@ MonoBehaviour:
   animationID: 
   isRoot: 0
   jointBreakForce: 200000
+  maxSpeed: 20
   attachmentAudioClip: {fileID: 0}
   id: 0
-  forceStrength: 200
+  forceStrength: 400
   stickyLayer: 20
 --- !u!54 &-1556783851520123857
 Rigidbody:
@@ -593,6 +597,7 @@ MonoBehaviour:
   animationID: 
   isRoot: 0
   jointBreakForce: 200000
+  maxSpeed: 20
   attachmentAudioClip: {fileID: 0}
   id: 0
   forceStrength: 0
@@ -724,6 +729,7 @@ MonoBehaviour:
   animationID: 
   isRoot: 0
   jointBreakForce: 200000
+  maxSpeed: 20
   attachmentAudioClip: {fileID: 0}
   id: 0
   forceStrength: 0

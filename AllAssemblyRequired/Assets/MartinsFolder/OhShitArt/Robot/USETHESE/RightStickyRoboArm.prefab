@@ -587,7 +587,7 @@ GameObject:
   - component: {fileID: 2392744096779216992}
   m_Layer: 0
   m_Name: RightStickyRoboArm
-  m_TagString: Untagged
+  m_TagString: sticky
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -626,7 +626,7 @@ MonoBehaviour:
   maxSpeed: 20
   attachmentAudioClip: {fileID: 0}
   id: 3
-  forceStrength: 0
+  forceStrength: 200
   stickyLayer: 20
 --- !u!95 &3134683925917099415
 Animator:
