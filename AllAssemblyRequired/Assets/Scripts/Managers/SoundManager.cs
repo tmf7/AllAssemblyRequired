@@ -6,9 +6,34 @@ public class SoundManager : MonoBehaviour
 
     [SerializeField] private AudioSource _musicAudioSource;
     [SerializeField] private AudioClip _mainMusic;
+    [SerializeField] private AudioClip _menuMusic;
 
     private float _soundFXVolume = 1.0f;
     private float _musicVolume = 1.0f; 
+
+    public float SoundFXVolume
+    {
+        get
+        {
+            return _soundFXVolume;
+        }
+        set
+        {
+            _soundFXVolume = Mathf.Clamp01(value);
+        }
+    }
+
+    public float MusicVolume
+    {
+        get
+        {
+            return _musicAudioSource.volume;
+        }
+        set
+        {
+            _musicAudioSource.volume = Mathf.Clamp01(value);
+        }
+    }
 
     public bool IsPaused
     {
@@ -37,12 +62,22 @@ public class SoundManager : MonoBehaviour
 
     public void PlaySoundFX(AudioClip audioClip, GameObject whereToPlay)
     {
-        AudioSource.PlayClipAtPoint(audioClip, whereToPlay.transform.position, _soundFXVolume);
+        if (audioClip != null && whereToPlay != null)
+        {
+            AudioSource.PlayClipAtPoint(audioClip, whereToPlay.transform.position, _soundFXVolume);
+        }
     }
 
-    public void PlayMusic()
+    public void PlayMainMusic()
     {
         _musicAudioSource.clip = _mainMusic;
+        _musicAudioSource.loop = true;
+        _musicAudioSource.Play();
+    }
+
+    public void PlayMenuMusic()
+    {
+        _musicAudioSource.clip = _menuMusic;
         _musicAudioSource.loop = true;
         _musicAudioSource.Play();
     }
