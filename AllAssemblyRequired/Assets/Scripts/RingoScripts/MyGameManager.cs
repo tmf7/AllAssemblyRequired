@@ -1,12 +1,26 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
+
+public enum GameState
+{
+    Spawn, 
+    Playing,
+    End
+}
 
 public class MyGameManager : MonoBehaviour
 {
     public static MyGameManager Instance;             //This script, like MouseLocation, has a public static reference to itself to that other scripts
-
     public List<GameObject> Players;
+    public List<GameObject> Prefabs;
+    public Transform SpawnOrigin;
+    public int maxParts = 10;
+
+    //[SerializeField]
+    //private string[] PrefabPaths;
+    private GameState State;
 
     void Awake()
     {
@@ -19,9 +33,50 @@ public class MyGameManager : MonoBehaviour
         else if (Instance != this)
             Destroy(this);
     }
+
+    private void Start()
+    {
+
+    }
+
     // Update is called once per frame
     void Update()
     {
-        
+        switch(this.State)
+        {
+            case (GameState.Spawn):
+            {
+                    break;
+            }
+            case (GameState.Playing):
+            {
+                    break;
+            }
+            case (GameState.End):
+            {
+                    break;
+            }
+            default:
+            {
+                    Debug.Log("current state is not acccounted of... wtf happneed?");
+                    break;
+            }
+        }
+    }
+
+    void Spawn()
+    {
+        var max = this.Prefabs.Count() - 1;
+        var index = Random.Range(0, max);
+        var chosenPrefab = this.Prefabs[index];
+
+        var newObj = Instantiate(chosenPrefab);
+
+        this.maxParts += 1;
+        //create the game object at spawner
+    }
+
+    void SpawnMotion(GameObject obj) {
+
     }
 }

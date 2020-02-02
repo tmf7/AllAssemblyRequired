@@ -13,7 +13,7 @@ public class MyCameraFollow : MonoBehaviour
     private LayerMask TransparentLayerMask;
     [SerializeField]
     private Material TransparentMaterial;
-    private Dictionary<GameObject, Material> IsTransparent = new Dictionary<GameObject, Material>();
+    private Dictionary<GameObject, Dictionary<Renderer, Material>> IsTransparent = new Dictionary<GameObject, Dictionary<Renderer, Material>>();
 
     [SerializeField] float smoothing = 5f;                          //Amount of smoothing to apply to the cameras movement
     [SerializeField] Vector3 offset = new Vector3(0f, 15f, -22f);  //The offset of the camera from the player (how far back and above the player the camera should be)
@@ -29,7 +29,7 @@ public class MyCameraFollow : MonoBehaviour
         var hits = Players.SelectMany(player =>
         {
             var distance = Vector3.Distance(player.transform.position, transform.position);
-            Debug.DrawRay(transform.position, transform.forward * distance, Color.green);
+            //Debug.DrawRay(transform.position, transform.forward * distance, Color.green);
             var detectedhits = Physics.RaycastAll(transform.position, transform.forward, distance, TransparentLayerMask);
             return detectedhits.Select(h => h.collider.gameObject);
         }).ToList();
@@ -39,19 +39,28 @@ public class MyCameraFollow : MonoBehaviour
         var removal = keys.Except(hits).ToList();
         foreach (var noTransObject in removal)
         {
-            Fade(noTransObject, IsTransparent[noTransObject]);
+            var rs = noTransObject.GetComponentsInParent<Renderer>();
+            foreach (var r in rs)
+            {
+                Fade(r, IsTransparent[noTransObject][r]);
+            }
             IsTransparent.Remove(noTransObject);
         }
 
         var newHits = hits.Except(keys).ToList();
-        foreach (var newTransObj in newHits) 
+        foreach (var newTransObj in newHits)
         {
-            var oldMat = Fade(newTransObj, TransparentMaterial);
-            IsTransparent.Add(newTransObj, oldMat);
+            var rs = newTransObj.GetComponentsInParent<Renderer>();
+            var old = rs.Aggregate(new Dictionary<Renderer, Material>(), (acc, cur) => {
+                var oldMat = Fade(cur, TransparentMaterial);
+                acc.Add(cur, oldMat);
+                return acc; 
+            });
+            IsTransparent.Add(newTransObj, old);
         }
     }
 
-    public Material Fade(GameObject obj, Material newMat)
+    public Material Fade(Renderer obj, Material newMat)
     {
         var r = obj.GetComponentInParent<Renderer>();
         var m = r.material;
