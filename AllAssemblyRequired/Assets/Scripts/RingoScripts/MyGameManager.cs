@@ -46,14 +46,22 @@ public class MyGameManager : MonoBehaviour
         {
             case (GameState.Spawn):
             {
+                if(this.maxParts == 0) {
+                    this.State = GameState.Playing;
+                } else if(maxParts == 1) {
+                    this.Spawn(true);
+                }
+                this.Spawn();
                     break;
             }
             case (GameState.Playing):
             {
+                    //at some point game ends...
                     break;
             }
             case (GameState.End):
             {
+
                     break;
             }
             default:
@@ -64,7 +72,7 @@ public class MyGameManager : MonoBehaviour
         }
     }
 
-    void Spawn()
+    void Spawn(bool isRoot = false)
     {
         var max = this.Prefabs.Count() - 1;
         var index = Random.Range(0, max);
@@ -72,8 +80,13 @@ public class MyGameManager : MonoBehaviour
 
         var newObj = Instantiate(chosenPrefab);
 
-        this.maxParts += 1;
+        if(isRoot == true)
+        {
+            newObj.GetComponent<StickyBehavior>().isRoot = true;
+        }
+
         //create the game object at spawner
+        this.maxParts -= 1;
     }
 
     void SpawnMotion(GameObject obj) {

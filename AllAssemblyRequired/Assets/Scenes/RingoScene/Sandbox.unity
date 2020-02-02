@@ -161,6 +161,8 @@ MonoBehaviour:
   - {fileID: 7070628310552713865, guid: 923685cee34814a42959d1de7a76f79e, type: 3}
   - {fileID: 8983308068830617946, guid: c1f2d8187e8f64b198e43e13bfbc437a, type: 3}
   Prefabs: []
+  SpawnOrigin: {fileID: 1654198466}
+  maxParts: 10
 --- !u!4 &3348177
 Transform:
   m_ObjectHideFlags: 0
