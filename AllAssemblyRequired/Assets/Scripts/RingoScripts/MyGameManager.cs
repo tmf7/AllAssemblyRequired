@@ -36,9 +36,10 @@ public class MyGameManager : MonoBehaviour
             Destroy(this);
     }
 
-    private void Start()
+    private IEnumerator Start()
     {
-        var stickyObj = GameObject.FindGameObjectsWithTag("sticky");
+        yield return new WaitForSeconds(2.0f);
+        var stickyObj = FindObjectsOfType<StickyBehavior>();
         var rootIndex = Random.Range(0, stickyObj.Length - 1);
         this.Player = stickyObj[rootIndex].gameObject;
         this.Player.GetComponent<StickyBehavior>().isRoot = true;
