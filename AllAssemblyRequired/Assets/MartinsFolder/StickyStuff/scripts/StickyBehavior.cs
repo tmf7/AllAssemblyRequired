@@ -74,9 +74,8 @@ public class StickyBehavior : MonoBehaviour
     }
 
     void addForce(int requestId, string forceDirection) {
-        if (isRoot == false) {
-            return;
-        } else if (id == requestId) {
+        if (isRoot == true) {
+            
             switch(forceDirection) {
                 case "forward":
                     currentForce.z += 1;
