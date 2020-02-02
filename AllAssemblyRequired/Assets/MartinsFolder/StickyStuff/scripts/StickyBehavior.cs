@@ -8,13 +8,14 @@ public class StickyBehavior : MonoBehaviour
     public string animationID = "move";
     public bool isRoot = false;
     public int jointBreakForce = 200000;
-    public float maxSpeed = 20f;
+    public float maxSpeed = 5000000f;
     public AudioClip attachmentAudioClip;
+    public float maxHeight = 1000f;
 
     private bool connectedToRoot = false;
     protected bool isConnected = false;
     public int id = 0;
-    public float forceStrength = 0.0f;
+    public float forceStrength = 1.0f;
     private Rigidbody rigidBodyComp;
     public int stickyLayer = 20;
     private Vector3 currentForce;
@@ -23,8 +24,9 @@ public class StickyBehavior : MonoBehaviour
         rigidBodyComp = gameObject.GetComponent<Rigidbody>();
 
         if (rigidBodyComp == null) {
-            gameObject.AddComponent<Rigidbody>();
+            rigidBodyComp =gameObject.AddComponent<Rigidbody>();
         }
+        rigidBodyComp.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
 
         if (isRoot) {
             isConnected = true;
@@ -35,18 +37,32 @@ public class StickyBehavior : MonoBehaviour
         EventManager.current.onAnimationStart += playAnimation;
         EventManager.current.onAddForce += addForce;
         EventManager.current.onStopForce += stopForce;
+        EventManager.current.onForceBreak += ForceBreak;
     }
 
     // Update is called once per frame
     void Update()
     {
-        rigidBodyComp.AddForce(currentForce * forceStrength);
-        if(rigidBodyComp.velocity.magnitude > maxSpeed){
-             rigidBodyComp.velocity = Vector3.ClampMagnitude(rigidBodyComp.velocity, maxSpeed);
-         }
+        rigidBodyComp.velocity += (currentForce * forceStrength / 2000);
+        //if(rigidBodyComp.velocity.magnitude > maxSpeed){
+         //   Debug.Log("max speed reached");
+         //    rigidBodyComp.velocity = Vector3.ClampMagnitude(rigidBodyComp.velocity, maxSpeed);
+         //}
+
+        if(gameObject.transform.position.y > maxHeight)
+        {
+            //max height reached...
+            //gameObject.transform.position = new Vector3 (gameObject.transform.position.x, , gameObject.transform.position.z);
+            //rigidBodyComp.velocity = currentForce * 0;
+        }
     }
 
     private void OnJointBreak(float breakForce) {
+        breakConnection();
+    }
+
+    private void ForceBreak(int id)
+    {
         breakConnection();
     }
 
@@ -75,7 +91,6 @@ public class StickyBehavior : MonoBehaviour
 
     void addForce(int requestId, string forceDirection) {
         if (isRoot == true) {
-            
             switch(forceDirection) {
                 case "forward":
                     currentForce.z += 1;

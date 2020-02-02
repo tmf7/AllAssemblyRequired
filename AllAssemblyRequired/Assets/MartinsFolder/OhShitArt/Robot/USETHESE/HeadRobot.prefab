@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 5843866333978363111}
   m_Layer: 0
   m_Name: HeadRobot
-  m_TagString: Untagged
+  m_TagString: sticky
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -80,6 +80,7 @@ MonoBehaviour:
   animationID: 
   isRoot: 0
   jointBreakForce: 200000
+  maxSpeed: 50
   attachmentAudioClip: {fileID: 0}
   id: 0
   forceStrength: 200

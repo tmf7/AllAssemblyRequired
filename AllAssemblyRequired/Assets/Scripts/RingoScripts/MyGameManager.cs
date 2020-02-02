@@ -48,7 +48,14 @@ public class MyGameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        switch(this.State)
+        if(Input.GetKeyUp(KeyCode.M))
+        {
+            //reset
+            this.Player.GetComponent<Transform>().position = this.SpawnOrigin.GetComponent<Transform>().position;
+            this.Player.GetComponent<Rigidbody>().velocity = Vector3.up * 0;
+        }
+
+        switch (this.State)
         {
             case (GameState.Spawn):
             {
@@ -67,6 +74,7 @@ public class MyGameManager : MonoBehaviour
             }
             case (GameState.End):
             {
+                    EndGame();
                     break;
             }
             default:
@@ -76,6 +84,12 @@ public class MyGameManager : MonoBehaviour
             }
         }
     }
+
+    public void EndGame()
+    {
+        this.State = GameState.End;
+    }
+
 
     void Spawn(bool isRoot = false)
     {
