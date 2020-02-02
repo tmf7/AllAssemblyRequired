@@ -377,6 +377,10 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 4294967295
       objectReference: {fileID: 0}
+    - target: {fileID: 100002, guid: 7985cdaa35ef74a67ba40a39b1216f64, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 100004, guid: 7985cdaa35ef74a67ba40a39b1216f64, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 4294967295
@@ -1030,8 +1034,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _musicAudioSource: {fileID: 1489043341}
-  _mainMusic: {fileID: 8300000, guid: d66da6199b201264b90910578c433760, type: 3}
-  _menuMusic: {fileID: 8300000, guid: a91bd6f6051c74246a54b600d7a13be4, type: 3}
+  _mainMusic: {fileID: 8300000, guid: 5e18f5f57aec91e49a334d45aeae05d3, type: 3}
+  _menuMusic: {fileID: 8300000, guid: f5c1c0f6d7b33554fb8188a98dfb173d, type: 3}
 --- !u!4 &1489043343
 Transform:
   m_ObjectHideFlags: 0
@@ -5530,6 +5534,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: MainMenuBlocks
+      objectReference: {fileID: 0}
+    - target: {fileID: 4890444410357166143, guid: d901b88a8e118484abd2a505369d7adb,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 4890444411094930350, guid: d901b88a8e118484abd2a505369d7adb, type: 3}

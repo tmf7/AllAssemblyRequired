@@ -68,6 +68,14 @@ public class SoundManager : MonoBehaviour
         }
     }
 
+    public void PlaySoundFX(AudioClip audioClip, Vector3 whereToPlay)
+    {
+        if (audioClip != null && whereToPlay != null)
+        {
+            AudioSource.PlayClipAtPoint(audioClip, whereToPlay, _soundFXVolume);
+        }
+    }
+
     public void PlayMainMusic()
     {
         _musicAudioSource.clip = _mainMusic;
