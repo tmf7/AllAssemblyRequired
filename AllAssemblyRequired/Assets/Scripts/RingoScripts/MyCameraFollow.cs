@@ -9,10 +9,20 @@ public class MyCameraFollow : MonoBehaviour
 {
     [SerializeField]
     private List<GameObject> Players;
-    public LayerMask TransparentLayerMask;
+    [SerializeField]
+    private LayerMask TransparentLayerMask;
+    [SerializeField]
+    private Material TransparentMaterial;
+    private Dictionary<GameObject, Material> IsTransparent = new Dictionary<GameObject, Material>();
 
-    public float goalAlpha;
-    private List<GameObject> IsTransparent = new List<GameObject>();
+    [SerializeField] float smoothing = 5f;                          //Amount of smoothing to apply to the cameras movement
+    [SerializeField] Vector3 offset = new Vector3(0f, 15f, -22f);  //The offset of the camera from the player (how far back and above the player the camera should be)
+
+    private void FixedUpdate()
+    {
+        Vector3 targetCamPos = Players.First().transform.position + offset;
+        transform.position = Vector3.Lerp(transform.position, targetCamPos, smoothing * Time.deltaTime);
+    }
 
     private void Update()
     {
@@ -24,25 +34,28 @@ public class MyCameraFollow : MonoBehaviour
             return detectedhits.Select(h => h.collider.gameObject);
         }).ToList();
 
-        var removal = IsTransparent.Except(hits).ToList();
+        //remove the one that is 
+        var keys = IsTransparent.Keys;
+        var removal = keys.Except(hits).ToList();
         foreach (var noTransObject in removal)
         {
-            Fade(noTransObject, 1f);
+            Fade(noTransObject, IsTransparent[noTransObject]);
             IsTransparent.Remove(noTransObject);
         }
 
-        var newHits = hits.Except(IsTransparent).ToList();
+        var newHits = hits.Except(keys).ToList();
         foreach (var newTransObj in newHits) 
         {
-            Fade(newTransObj, goalAlpha);
-            IsTransparent.Add(newTransObj);
+            var oldMat = Fade(newTransObj, TransparentMaterial);
+            IsTransparent.Add(newTransObj, oldMat);
         }
     }
 
-    public void Fade(GameObject obj, float alpha)
+    public Material Fade(GameObject obj, Material newMat)
     {
-        var color = obj.GetComponent<Renderer>().material.color;
-        color.a = alpha;
-        obj.GetComponent<Renderer>().material.color = color;
+        var r = obj.GetComponentInParent<Renderer>();
+        var m = r.material;
+        r.material = newMat;
+        return m;
     }
 }
