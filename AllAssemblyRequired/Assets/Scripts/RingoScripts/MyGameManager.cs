@@ -16,6 +16,7 @@ public class MyGameManager : MonoBehaviour
     public List<GameObject> Assets;
     public int PlayerCount = 1;
     public Transform SpawnOrigin;
+    public GameObject Player;
 
     public int maxParts = 10;
 
@@ -37,6 +38,11 @@ public class MyGameManager : MonoBehaviour
 
     private void Start()
     {
+        var stickyObj = GameObject.FindGameObjectsWithTag("sticky");
+        var rootIndex = Random.Range(0, stickyObj.Length - 1);
+        this.Player = stickyObj[rootIndex].gameObject;
+        this.Player.GetComponent<StickyBehavior>().isRoot = true;
+        this.State = GameState.Playing;
     }
 
     // Update is called once per frame
@@ -51,10 +57,7 @@ public class MyGameManager : MonoBehaviour
                     //    this.Spawn(true);
                     //}
                     //this.Spawn();
-                var stickyObj = GameObject.FindGameObjectsWithTag("Sticky");
-                var rootIndex = Random.Range(0, stickyObj.Length - 1);
-                
-                this.State = GameState.Playing;
+               
                 break;
             }
             case (GameState.Playing):

@@ -153,6 +153,7 @@ MonoBehaviour:
   Assets: []
   PlayerCount: 1
   SpawnOrigin: {fileID: 1654198466}
+  Player: {fileID: 0}
   maxParts: 10
 --- !u!4 &3348177
 Transform:
@@ -2223,7 +2224,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: EventManager
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 4389010886567462687, guid: c86b87d8c5b1e426daf1ed1d9b4020c3, type: 3}
+    - {fileID: 4389010886567462680, guid: c86b87d8c5b1e426daf1ed1d9b4020c3, type: 3}
+    - {fileID: 4389010886567462681, guid: c86b87d8c5b1e426daf1ed1d9b4020c3, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: c86b87d8c5b1e426daf1ed1d9b4020c3, type: 3}
 --- !u!1 &1432538746
 GameObject:
