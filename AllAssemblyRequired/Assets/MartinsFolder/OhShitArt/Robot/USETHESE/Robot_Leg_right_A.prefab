@@ -129,6 +129,7 @@ MonoBehaviour:
   jointBreakForce: 200000
   maxSpeed: 20
   attachmentAudioClip: {fileID: 0}
+  maxHeight: 1000
   id: 0
   forceStrength: 0
   stickyLayer: 20
@@ -262,6 +263,7 @@ MonoBehaviour:
   jointBreakForce: 200000
   maxSpeed: 20
   attachmentAudioClip: {fileID: 0}
+  maxHeight: 1000
   id: 0
   forceStrength: 0
   stickyLayer: 20
@@ -394,6 +396,7 @@ MonoBehaviour:
   jointBreakForce: 200000
   maxSpeed: 20
   attachmentAudioClip: {fileID: 0}
+  maxHeight: 1000
   id: 0
   forceStrength: 0
   stickyLayer: 20
@@ -450,7 +453,8 @@ MonoBehaviour:
   isRoot: 0
   jointBreakForce: 200000
   maxSpeed: 20
-  attachmentAudioClip: {fileID: 0}
+  attachmentAudioClip: {fileID: 8300000, guid: 0b7f85242e2518f4e8247458dadddcc2, type: 3}
+  maxHeight: 1000
   id: 0
   forceStrength: 400
   stickyLayer: 20
@@ -599,6 +603,7 @@ MonoBehaviour:
   jointBreakForce: 200000
   maxSpeed: 20
   attachmentAudioClip: {fileID: 0}
+  maxHeight: 1000
   id: 0
   forceStrength: 0
   stickyLayer: 20
@@ -731,6 +736,7 @@ MonoBehaviour:
   jointBreakForce: 200000
   maxSpeed: 20
   attachmentAudioClip: {fileID: 0}
+  maxHeight: 1000
   id: 0
   forceStrength: 0
   stickyLayer: 20

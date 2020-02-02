@@ -624,7 +624,8 @@ MonoBehaviour:
   isRoot: 0
   jointBreakForce: 150000
   maxSpeed: 20
-  attachmentAudioClip: {fileID: 0}
+  attachmentAudioClip: {fileID: 8300000, guid: 0b7f85242e2518f4e8247458dadddcc2, type: 3}
+  maxHeight: 50
   id: 3
   forceStrength: 200
   stickyLayer: 20
