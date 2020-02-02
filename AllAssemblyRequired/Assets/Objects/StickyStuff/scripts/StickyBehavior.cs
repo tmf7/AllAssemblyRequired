@@ -5,9 +5,10 @@ using UnityEngine;
 public class StickyBehavior : MonoBehaviour
 {
     // Start is called before the first frame update
-    public string animationID;
+    public string animationID = "move";
     public bool isRoot = false;
     public int jointBreakForce = 200000;
+    public float maxSpeed = 20f;
     public AudioClip attachmentAudioClip;
 
     private bool connectedToRoot = false;
@@ -24,6 +25,10 @@ public class StickyBehavior : MonoBehaviour
         if (rigidBodyComp == null) {
             gameObject.AddComponent<Rigidbody>();
         }
+
+        if (isRoot) {
+            isConnected = true;
+        }
     }
     void Start()
     {
@@ -36,6 +41,10 @@ public class StickyBehavior : MonoBehaviour
     void Update()
     {
         rigidBodyComp.AddForce(currentForce * forceStrength);
+
+        if(rigidBodyComp.velocity.magnitude > maxSpeed){
+             rigidBodyComp.velocity = Vector3.ClampMagnitude(rigidBodyComp.velocity, maxSpeed);
+         }
     }
 
     private void OnJointBreak(float breakForce) {
@@ -134,7 +143,6 @@ public class StickyBehavior : MonoBehaviour
         if (collidingObject.layer == stickyLayer && state != null && state.isConnected == false) {
             FixedJoint joint = collidingObject.AddComponent<FixedJoint>();
             if (joint != null && state != null) {
-                print("connected");
                 joint.connectedBody = rigidBodyComp;
                 joint.breakForce = jointBreakForce;
                 isConnected = true;
@@ -147,7 +155,6 @@ public class StickyBehavior : MonoBehaviour
 
     void playAttachmentSound() {
         if (attachmentAudioClip != null) {
-            print("sound");
             SoundManager.Instance.PlaySoundFX(attachmentAudioClip, gameObject);
         }
     }

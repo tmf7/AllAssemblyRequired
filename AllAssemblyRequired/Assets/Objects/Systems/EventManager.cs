@@ -10,6 +10,7 @@ public class EventManager : MonoBehaviour
     public event Action<int> onAnimationEnd;
     public event Action<int, string> onAddForce;
     public event Action<int, string> onStopForce;
+    public event Action onButtonPress;
     
     private void Awake() {
         current = this;
@@ -20,9 +21,20 @@ public class EventManager : MonoBehaviour
     }
 
     private void Update() {
+        // index 2 mapped to robot's right arm
         if (Input.GetKeyDown("space")) {
             triggerAnimationStart(2);
-        }    
+        } 
+
+        // index 3 mapped to robot's left arm
+        if (Input.GetKeyDown("r")) {
+            triggerAnimationStart(3);
+        }
+
+        // index 4 mapped to octopus legs
+        if (Input.GetKeyDown("t")) {
+            triggerAnimationStart(4);
+        }            
 
         if (Input.GetKeyDown("w")) {
             triggerForce(1, "forward");
@@ -57,6 +69,11 @@ public class EventManager : MonoBehaviour
         }
     }
 
+    public void triggerDoors() {
+        if (onButtonPress != null) {
+            onButtonPress();
+        }
+    }
     public void triggerForce(int objectId, string forceDirection) {
         if (onAddForce != null) {
             onAddForce(objectId, forceDirection);
