@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 4452444866501532701}
   m_Layer: 0
   m_Name: OctoHead
-  m_TagString: Untagged
+  m_TagString: sticky
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -113,6 +113,7 @@ MonoBehaviour:
   animationID: move
   isRoot: 0
   jointBreakForce: 200000
+  maxSpeed: 20
   attachmentAudioClip: {fileID: 0}
   id: 0
   forceStrength: 300

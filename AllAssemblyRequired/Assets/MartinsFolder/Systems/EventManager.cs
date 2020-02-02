@@ -13,7 +13,11 @@ public class EventManager : MonoBehaviour
     public event Action onButtonPress;
     
     private void Awake() {
-        current = this;
+        if (current == null) {
+            current = this;
+        }
+         else if (current != this)
+            Destroy(this);
     }
 
     private void Start() {
@@ -34,7 +38,11 @@ public class EventManager : MonoBehaviour
         // index 4 mapped to octopus legs
         if (Input.GetKeyDown("t")) {
             triggerAnimationStart(4);
-        }            
+        }
+
+        if (Input.GetKeyDown("y")) {
+            triggerAnimationStart(5);
+        }          
 
         if (Input.GetKeyDown("w")) {
             triggerForce(1, "forward");

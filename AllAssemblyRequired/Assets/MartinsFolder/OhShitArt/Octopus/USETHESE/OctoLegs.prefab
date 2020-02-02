@@ -259,7 +259,7 @@ GameObject:
   - component: {fileID: 7983303191091294096}
   m_Layer: 0
   m_Name: OctoLegs
-  m_TagString: Untagged
+  m_TagString: sticky
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -330,9 +330,10 @@ MonoBehaviour:
   animationID: move
   isRoot: 0
   jointBreakForce: 200000
+  maxSpeed: 10000
   attachmentAudioClip: {fileID: 0}
-  id: 4
-  forceStrength: 300
+  id: 1
+  forceStrength: 1
   stickyLayer: 20
 --- !u!1 &3928578747489572597
 GameObject:

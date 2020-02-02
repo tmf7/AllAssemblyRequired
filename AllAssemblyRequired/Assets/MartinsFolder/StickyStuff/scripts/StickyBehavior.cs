@@ -41,7 +41,6 @@ public class StickyBehavior : MonoBehaviour
     void Update()
     {
         rigidBodyComp.AddForce(currentForce * forceStrength);
-
         if(rigidBodyComp.velocity.magnitude > maxSpeed){
              rigidBodyComp.velocity = Vector3.ClampMagnitude(rigidBodyComp.velocity, maxSpeed);
          }
@@ -75,9 +74,8 @@ public class StickyBehavior : MonoBehaviour
     }
 
     void addForce(int requestId, string forceDirection) {
-        if (isRoot == false) {
-            return;
-        } else if (id == requestId) {
+        if (isRoot == true) {
+            
             switch(forceDirection) {
                 case "forward":
                     currentForce.z += 1;
