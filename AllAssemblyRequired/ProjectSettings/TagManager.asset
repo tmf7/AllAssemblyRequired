@@ -15,14 +15,8 @@ TagManager:
   - UI
   - 
   - 
-<<<<<<< HEAD
-  - 
-=======
   - Sticky
   - Spawner
->>>>>>> RingoDev
-  - 
-  - Static bg
   - 
   - 
   - 
@@ -44,6 +38,7 @@ TagManager:
   - 
   - 
   - 
+  - Volume
   m_SortingLayers:
   - name: Default
     uniqueID: 0

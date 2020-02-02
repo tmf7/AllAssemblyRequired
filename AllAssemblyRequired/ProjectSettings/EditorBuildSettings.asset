@@ -9,6 +9,6 @@ EditorBuildSettings:
     path: Assets/Scenes/MainMenu.unity
     guid: 0c1d1b881a8579044aea3ce880bf6609
   - enabled: 1
-    path: Assets/Scenes/TheOnlyLevel.unity
-    guid: 9fc0d4010bbf28b4594072e72b8655ab
+    path: Assets/Scenes/RingoScene/Sandbox.unity
+    guid: ddd202a805da743878d6a43dd83e6928
   m_configObjects: {}
