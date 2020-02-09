@@ -22,7 +22,7 @@ public class MenuSelectBlock : ClickableBlock
         {
             var newExplosion = Instantiate(_destroyParticles, box.transform.position, box.transform.rotation);
             newExplosion.transform.localScale = box.transform.lossyScale;
-            SoundManager.Instance.PlaySoundFX(_explosionSounds[Random.Range(0, _explosionSounds.Length)], Camera.main.gameObject);
+            SoundManager.Instance.Play2DSoundFX(_explosionSounds[Random.Range(0, _explosionSounds.Length)]);
             Destroy(box.gameObject);
         }
 

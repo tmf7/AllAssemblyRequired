@@ -1,15 +1,14 @@
 ﻿using UnityEngine;
 using TMPro;
+using UnityEngine.EventSystems;
 
-public class DragableVolumeLever : MonoBehaviour
+public class DragableVolumeLever : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler, IDragHandler
 {
     public enum VolumeScale : int
     {
         SOUND_FX,
         MUSIC
     }
-
-    private bool _leverHit = false;
 
     [SerializeField] private Camera _eventCamera;
     [SerializeField] private Transform _topStop;
@@ -19,13 +18,14 @@ public class DragableVolumeLever : MonoBehaviour
     [SerializeField] private AudioClip _testSoundFX;
     [SerializeField] private TextMeshProUGUI _volumeText;
     [SerializeField] private LayerMask _targetLayer;
+    [SerializeField] private GameObject _selectionHighlight;
 
-    [SerializeField, Range(0.0f, 1.0f)] private float TEST = 1.0f;
-
+    private RectTransform _rectTransform;
     private float _maxTranslationValue;
     private float _replayCooldown;
     private float _leverVolume = 1.0f;
     private bool _clicked;
+    private bool _hovered;
 
     private const float REPLAY_BUFFER = 0.5f;
 
@@ -52,10 +52,10 @@ public class DragableVolumeLever : MonoBehaviour
             {
                 case VolumeScale.SOUND_FX:
                 {
-                    if (_replayCooldown <= 0.0f)
+                    if (_clicked && _replayCooldown <= 0.0f)
                     {
                         _replayCooldown = _testSoundFX.length + REPLAY_BUFFER;
-                        SoundManager.Instance.PlaySoundFX(_testSoundFX, Camera.main.gameObject);
+                        SoundManager.Instance.Play2DSoundFX(_testSoundFX);
                     }
 
                     SoundManager.Instance.SoundFXVolume = _leverVolume;
@@ -70,7 +70,7 @@ public class DragableVolumeLever : MonoBehaviour
         }
     }
 
-    private void Awake()
+    private void Start()
     {
         switch (_volumeScale)
         {
@@ -88,44 +88,55 @@ public class DragableVolumeLever : MonoBehaviour
                 }
         }
 
+        _rectTransform = GetComponentInChildren<RectTransform>();
         _maxTranslationValue = Vector3.Distance(_bottomStop.position, _topStop.position);
+    }
+
+    public void OnDrag(PointerEventData eventData)
+    {
+        Vector3 dragPosition = GetRectTransformWorldPoint(eventData.position);
+        CalculateTranslation(dragPosition);
+    }
+
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        _clicked = true;
+        OnDrag(eventData);
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        _hovered = true;
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+
+        _hovered = false;
+    }
+
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        _clicked = false;
+
     }
 
     private void Update()
     {
-        if (_replayCooldown > 0.0f)
+        if (_clicked && _replayCooldown > 0.0f)
         {
             _replayCooldown -= Time.unscaledDeltaTime;
         }
 
-        _clicked = Input.GetMouseButton(0);
+        _selectionHighlight.SetActive(_clicked || _hovered);
+    }
 
-        if (Input.GetMouseButtonUp(0))
-        {
-            _leverHit = false;
-        }
+    private Vector3 GetRectTransformWorldPoint(Vector2 screenPoint)
+    {
+        Vector3 worldPointInRectTransform;
+        RectTransformUtility.ScreenPointToWorldPointInRectangle(_rectTransform, screenPoint, _eventCamera, out worldPointInRectTransform);
 
-        if (_clicked)
-        {
-            var hits = Physics.RaycastAll(_eventCamera.ScreenPointToRay(Input.mousePosition), _targetLayer.value);
-
-            foreach (var hit in hits)
-            {
-                var lever = hit.collider.GetComponent<DragableVolumeLever>();
-                if (lever != null && lever._volumeScale == _volumeScale)
-                {
-                    Debug.Log(lever.name);
-                    _leverHit = true;
-                    break;
-                }
-            }
-
-            if (_leverHit)
-            {
-                Vector3 mousePosition = Input.mousePosition + _eventCamera.transform.forward * ((transform.position - _eventCamera.transform.position).magnitude);
-                CalculateTranslation(_eventCamera.ScreenToWorldPoint(mousePosition));
-            }
-        }
+        return worldPointInRectTransform;
     }
 
     private void CalculateTranslation(Vector3 queryPoint)

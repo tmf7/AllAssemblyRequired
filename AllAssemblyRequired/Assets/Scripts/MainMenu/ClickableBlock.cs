@@ -2,7 +2,6 @@
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using System.Linq;
 
 [RequireComponent(typeof(Rigidbody))]
 public class ClickableBlock : MonoBehaviour, IPointerClickHandler
@@ -13,24 +12,16 @@ public class ClickableBlock : MonoBehaviour, IPointerClickHandler
     [SerializeField] private AudioClip[] _tumbleSounds;
     [SerializeField] private bool _applyExplosiveForce = true;
 
-
     private static float CLEAR_MENU_FORCE = 10000.0f;
     private static float CLEAR_MENU_RADIUS = 10000.0f;
 
     public virtual void OnClick() { }
 
-    private Transform GetClosestCamera()
-    {
-
-        return null;
-       // return FindObjectsOfType<Camera>()
-    }
-
     public void OnPointerClick(PointerEventData eventData)
     {
-        Vector3 pushDirection = (transform.position - Camera.main.transform.position).normalized;
+        Vector3 pushDirection = (transform.position - eventData.enterEventCamera.transform.position).normalized;
         GetComponent<Rigidbody>().AddForce(_pushForce * pushDirection, ForceMode.Impulse);
-        SoundManager.Instance.PlaySoundFX(_clickSounds[Random.Range(0, _clickSounds.Length)], Camera.main.gameObject);
+        SoundManager.Instance.Play2DSoundFX(_clickSounds[Random.Range(0, _clickSounds.Length)]);
         StartCoroutine(WaitForExplosion());
     }
 

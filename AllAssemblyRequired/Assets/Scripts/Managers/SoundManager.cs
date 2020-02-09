@@ -76,6 +76,16 @@ public class SoundManager : MonoBehaviour
         }
     }
 
+    public void Play2DSoundFX(AudioClip audioClip)
+    {
+        var whereToPlay = FindObjectOfType<AudioListener>();
+
+        if (audioClip != null && whereToPlay != null)
+        {
+            AudioSource.PlayClipAtPoint(audioClip, whereToPlay.transform.position, _soundFXVolume);
+        }
+    }
+
     public void PlayMainMusic()
     {
         _musicAudioSource.clip = _mainMusic;

@@ -757,6 +757,9 @@ MonoBehaviour:
   _rotationSpeed: 360
   _linearSpeed: 20
   _snapThreshold: 0.08
+  _jointCreationTimeout: 4
+  _hintParticles: {fileID: 0}
+  _hintRadius: 0.5
 --- !u!1 &571027737
 GameObject:
   m_ObjectHideFlags: 0
@@ -1081,6 +1084,9 @@ MonoBehaviour:
   _rotationSpeed: 360
   _linearSpeed: 20
   _snapThreshold: 0.08
+  _jointCreationTimeout: 4
+  _hintParticles: {fileID: 0}
+  _hintRadius: 0.5
 --- !u!1 &1122150821
 GameObject:
   m_ObjectHideFlags: 0
@@ -1527,6 +1533,9 @@ MonoBehaviour:
   _rotationSpeed: 360
   _linearSpeed: 20
   _snapThreshold: 0.1
+  _jointCreationTimeout: 4
+  _hintParticles: {fileID: 0}
+  _hintRadius: 0.5
 --- !u!135 &1699846683
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1725,6 +1734,9 @@ MonoBehaviour:
   _rotationSpeed: 360
   _linearSpeed: 20
   _snapThreshold: 0.08
+  _jointCreationTimeout: 4
+  _hintParticles: {fileID: 0}
+  _hintRadius: 0.5
 --- !u!135 &2106652985
 SphereCollider:
   m_ObjectHideFlags: 0
