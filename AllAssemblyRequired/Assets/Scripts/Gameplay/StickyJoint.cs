@@ -1,13 +1,44 @@
 ﻿using System.Collections;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 /// <summary>Put this directly on any transform that is intended to snap to another transform via a parent rigidbody</summary>
 public class StickyJoint : MonoBehaviour
 {
+
+#if UNITY_EDITOR
+    [CustomEditor(typeof(StickyJoint))]
+    [CanEditMultipleObjects]
+    public class StickyJointEditor : Editor
+    {
+        private StickyJoint stickyJoint;
+
+        void OnEnable()
+        {
+            stickyJoint = target as StickyJoint;
+        }
+
+        public override void OnInspectorGUI()
+        {
+            base.OnInspectorGUI();
+            serializedObject.Update();
+            GUI.enabled = false;
+            EditorGUILayout.ObjectField("StickyBody", stickyJoint.StickyBody, typeof(StickyBody), true);
+            EditorGUILayout.ObjectField("AttachedStickyJoint", stickyJoint.AttachedStickyJoint, typeof(StickyJoint), true);
+            GUI.enabled = true;
+            serializedObject.ApplyModifiedProperties();
+        }
+    }
+#endif
+
+
+
     [SerializeField, Range(0.0f, 360.0f)] private float _rotationSpeed = 360.0f;
     [SerializeField, Range(0.0f, 50.0f)] private float _linearSpeed = 20.0f;
     [SerializeField, Range(0.001f, 1.0f)] private float _snapThreshold = 0.1f;
-    [SerializeField, Range(0.5f, 5.0f)] private float _jointCreationTimeout = 4.0f;
+    [SerializeField, Range(0.5f, 500.0f)] private float _jointCreationTimeout = 400.0f;
     [SerializeField] private ParticleSystem _hintParticles;
     [SerializeField] private float _hintRadius = 0.5f;
 
@@ -17,11 +48,13 @@ public class StickyJoint : MonoBehaviour
     public StickyBody StickyBody { get; private set; }
     public StickyJoint AttachedStickyJoint { get; private set; }
     public StickyBody AttachedStickyBody => (AttachedStickyJoint != null ? AttachedStickyJoint.StickyBody : null);
-    private bool IsAttachedToRoot => StickyBody.IsAttachedToRoot;
 
+    private bool IsCreatingJoint => _creatingJoint != null;
+    private bool IsAttachedToRoot => StickyBody.IsAttachedToRoot;
     private Rigidbody Rigidbody => StickyBody.Rigidbody;
     private Quaternion OpposingRotation => Quaternion.LookRotation(-transform.forward, transform.up);
 
+    /// <summary>  Where this StickyJoint's Rigidbody should position itself in worldspace if there is an AttachedStickyJoint </summary>
     private Pose Anchor
     {
         get
@@ -48,7 +81,7 @@ public class StickyJoint : MonoBehaviour
         set { Rigidbody.position = value; }
     }
 
-    private void OnDrawGizmos()
+    private void OnDrawGizmosSelected()
     {
         if (AttachedStickyJoint != null)
         {
@@ -69,19 +102,21 @@ public class StickyJoint : MonoBehaviour
 
     private void FixedUpdate()
     {
-        _hintParticles.gameObject.SetActive(IsRootWithinHintRange());
+        _hintParticles.gameObject.SetActive(IsOpenJointInRange());
 
         CheckJointIntegrity();
     }
 
-    private bool IsRootWithinHintRange()
+    private bool IsOpenJointInRange()
     {
         var currentOverlapping = Physics.OverlapSphere(transform.position, _hintRadius);
 
         foreach (var possibleRoot in currentOverlapping)
         {
             var stickyJoint = possibleRoot.GetComponent<StickyJoint>();
-            if (stickyJoint != null && stickyJoint.IsAttachedToRoot)
+            if (stickyJoint != null && 
+                stickyJoint.StickyBody != StickyBody &&
+                stickyJoint.AttachedStickyJoint == null)
             {
                 return true;
             }
@@ -92,9 +127,13 @@ public class StickyJoint : MonoBehaviour
 
     private void CheckJointIntegrity()
     {
-        bool isDisconnectedFromRoot = _creatingJoint == null && !IsAttachedToRoot;
+        // dont check if still creating the joint...or if the OTHER StickyJoint is creating the joint...given that only one will be creating the FixedJoint between them
+        // and only one should move to meet the other
+        //bool isDisconnectedFromRoot = _creatingJoint == null && !IsAttachedToRoot; 
 
-        if (isDisconnectedFromRoot)
+        // TODO: (FREEHILL 26 FEB 2020)  Multiple FixedJoints are being created, while simultaneously the AttachedStickyJoints are being nulled
+
+        if (!IsCreatingJoint && (AttachedStickyJoint != null && !AttachedStickyJoint.IsCreatingJoint))
         {
             if (_fixedJoint != null && _fixedJoint.connectedBody == null) // the joint is intact, but the connected rigidbody is destroyed
             {
@@ -113,15 +152,16 @@ public class StickyJoint : MonoBehaviour
 
     private void OnTriggerEnter(Collider otherCollider)
     {
-        var hitObject = otherCollider.GetComponent<StickyJoint>();
+        var hitStickyJoint = otherCollider.GetComponent<StickyJoint>();
 
-        if (hitObject != null && 
-            !IsAttachedToRoot &&
+        if (hitStickyJoint != null && 
+            !IsAttachedToRoot && // only allow one StickyJoint to create their FixedJoint bond
             AttachedStickyJoint == null &&
-            hitObject.AttachedStickyJoint == null)
+            hitStickyJoint.AttachedStickyJoint == null &&
+            !IsCreatingJoint)
         {
-            AttachedStickyJoint = hitObject;
-            hitObject.AttachedStickyJoint = this;
+            AttachedStickyJoint = hitStickyJoint;
+            hitStickyJoint.AttachedStickyJoint = this;
 
             _creatingJoint = CreateJoint();
             StartCoroutine(_creatingJoint);
