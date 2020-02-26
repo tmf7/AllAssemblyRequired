@@ -38,7 +38,7 @@ public class StickyJoint : MonoBehaviour
     [SerializeField, Range(0.0f, 360.0f)] private float _rotationSpeed = 360.0f;
     [SerializeField, Range(0.0f, 50.0f)] private float _linearSpeed = 20.0f;
     [SerializeField, Range(0.001f, 1.0f)] private float _snapThreshold = 0.1f;
-    [SerializeField, Range(0.5f, 500.0f)] private float _jointCreationTimeout = 400.0f;
+    [SerializeField, Range(0.5f, 500.0f)] private float _jointCreationTimeout = 4.0f;
     [SerializeField] private ParticleSystem _hintParticles;
     [SerializeField] private float _hintRadius = 0.5f;
 
@@ -61,7 +61,7 @@ public class StickyJoint : MonoBehaviour
         {
             if (AttachedStickyJoint != null)
             {
-                return new Pose(AttachedStickyJoint.transform.position + (AttachedStickyJoint.transform.forward * transform.localPosition.magnitude),
+                return new Pose(AttachedStickyJoint.transform.position + (Rigidbody.position - transform.position),
                                 AttachedStickyJoint.OpposingRotation * Quaternion.Inverse(transform.localRotation));
             }
 
@@ -86,7 +86,7 @@ public class StickyJoint : MonoBehaviour
         if (AttachedStickyJoint != null)
         {
             Gizmos.color = Color.blue;
-            Gizmos.DrawSphere(RigidbodyPosition, 0.1f);
+            Gizmos.DrawWireSphere(RigidbodyPosition, 0.3f);
             Gizmos.color = Color.red;
             Gizmos.DrawSphere(Anchor.position, 0.1f);
         }
@@ -104,7 +104,7 @@ public class StickyJoint : MonoBehaviour
     {
         _hintParticles.gameObject.SetActive(IsOpenJointInRange());
 
-        CheckJointIntegrity();
+        //CheckJointIntegrity();
     }
 
     private bool IsOpenJointInRange()
@@ -125,15 +125,21 @@ public class StickyJoint : MonoBehaviour
         return false;
     }
 
+    // TODO: (FREEHILL 26 FEB 2020) work out the JointIntegrity check (to avoid premature destroy call)
+    // TODO: (FREEHILL 26 FEB 2020) work out the multiple FixedJoint adds
+    // TODO: (FREEHILL 26 FEB 2020) (given that Non-Root-Attached joints move toward root-attached joints) work out a better way to debug what the final StickyJoint positioning will be
+    // ....perhaps an editor that positions two models, with one "joint" transform in worldspace between them, then press a button and boom two StickyJoint prefabs positioned and rotated on each model
+    // TODO: (FREEHILL 26 FEB 2020) work out when the pair should be set kinematic/non-kinematic in the event of a failure to connect
     private void CheckJointIntegrity()
     {
+
         // dont check if still creating the joint...or if the OTHER StickyJoint is creating the joint...given that only one will be creating the FixedJoint between them
         // and only one should move to meet the other
-        //bool isDisconnectedFromRoot = _creatingJoint == null && !IsAttachedToRoot; 
-
+        bool isDisconnectedFromRoot = _creatingJoint == null && !IsAttachedToRoot; 
+        // !IsCreatingJoint && (AttachedStickyJoint != null && !AttachedStickyJoint.IsCreatingJoint)
         // TODO: (FREEHILL 26 FEB 2020)  Multiple FixedJoints are being created, while simultaneously the AttachedStickyJoints are being nulled
 
-        if (!IsCreatingJoint && (AttachedStickyJoint != null && !AttachedStickyJoint.IsCreatingJoint))
+        if (!isDisconnectedFromRoot)
         {
             if (_fixedJoint != null && _fixedJoint.connectedBody == null) // the joint is intact, but the connected rigidbody is destroyed
             {
@@ -157,8 +163,8 @@ public class StickyJoint : MonoBehaviour
         if (hitStickyJoint != null && 
             !IsAttachedToRoot && // only allow one StickyJoint to create their FixedJoint bond
             AttachedStickyJoint == null &&
-            hitStickyJoint.AttachedStickyJoint == null &&
-            !IsCreatingJoint)
+            hitStickyJoint.AttachedStickyJoint == null //&&
+            /*!IsCreatingJoint*/)
         {
             AttachedStickyJoint = hitStickyJoint;
             hitStickyJoint.AttachedStickyJoint = this;
@@ -188,6 +194,7 @@ public class StickyJoint : MonoBehaviour
     private IEnumerator MatchAttachmentPoints()
     {
         float timeRemaining = _jointCreationTimeout;
+
         do
         {
             RigidbodyRotation = Quaternion.RotateTowards(RigidbodyRotation, Anchor.rotation, _rotationSpeed * Time.fixedDeltaTime);
@@ -196,8 +203,8 @@ public class StickyJoint : MonoBehaviour
             yield return new WaitForFixedUpdate();
             timeRemaining -= Time.fixedDeltaTime;
 
-        } while (Vector3.Distance(RigidbodyPosition, Anchor.position) > _snapThreshold &&
-                 Quaternion.Angle(RigidbodyRotation, Anchor.rotation) > _snapThreshold &&
+        } while ((Vector3.Distance(RigidbodyPosition, Anchor.position) > _snapThreshold ||
+                 Quaternion.Angle(RigidbodyRotation, Anchor.rotation) > _snapThreshold) &&
                  timeRemaining > 0.0f &&
                  _creatingJoint != null);
 
@@ -223,7 +230,14 @@ public class StickyJoint : MonoBehaviour
     private IEnumerator CreateJoint()
     {
         IgnoreAttachedColliders(true);
+
+        Rigidbody.isKinematic = true;
+        AttachedStickyJoint.Rigidbody.isKinematic = true;
+
         yield return StartCoroutine(MatchAttachmentPoints());
+
+        Rigidbody.isKinematic = false;
+        AttachedStickyJoint.Rigidbody.isKinematic = false;
 
         _fixedJoint = Rigidbody.gameObject.AddComponent<FixedJoint>();
         _fixedJoint.enablePreprocessing = true;
