@@ -83,24 +83,25 @@ public class StickyBody : MonoBehaviour
     }
 
     /// <summary>
-    /// Ignores collision between this, the given StickyBody, and any StickyBodies attached to this
-    /// This avoid chaotic collision during joint creation, and resumes collision when a joint is broken.
+    /// Ignores collision between this, the given StickyBody, and any StickyBodies attached to this and the given StickyBody
+    /// This avoids chaotic collision during joint creation, and resumes collision when a joint is broken.
     /// </summary>
-    public void IgnoreAttachedColliders(StickyBody other, bool ignore)
+    public void IgnoreAllColliders(StickyBody other, bool ignore)
     {
         var allStickyBodies = new HashSet<StickyBody>();
 
         GetAllStickyBodies(allStickyBodies);
+        other.GetAllStickyBodies(allStickyBodies);
 
-        // also ignore collisions with anything else currently forming a joint (eg simultaneous joint formation over several frames)
+        var allColliders = allStickyBodies.SelectMany(body => body.GetComponentsInChildren<Collider>(true)).ToArray();
 
-        foreach (var body in allStickyBodies)
+        if (allColliders.Length >= 2)
         {
-            foreach (var existingCollider in body.GetComponentsInChildren<Collider>())
+            for (int i = 0; i < allColliders.Length - 1; ++i)
             {
-                foreach (var otherCollider in other.GetComponentsInChildren<Collider>())
+                for (int j = i + 1; j < allColliders.Length; ++j)
                 {
-                    Physics.IgnoreCollision(existingCollider, otherCollider, ignore);
+                    Physics.IgnoreCollision(allColliders[i], allColliders[j], ignore);
                 }
             }
         }
@@ -141,7 +142,7 @@ public class StickyBody : MonoBehaviour
     // TODO: (FREEHILL 4 MAR 2020) this doesn't account for the attachmentPoint being destroyed while this is moving into place
     private IEnumerator MoveToAnchor(StickyJoint ownedJoint, StickyJoint matchJoint)
     {
-        IgnoreAttachedColliders(matchJoint.StickyBody, true);
+        IgnoreAllColliders(matchJoint.StickyBody, true);
         matchJoint.StickyBody.SetKinematic(true);
         SetKinematic(true);
 
@@ -184,7 +185,7 @@ public class StickyBody : MonoBehaviour
 
     private void DontCreateJoint(StickyJoint ownedJoint, StickyJoint matchJoint)
     {
-        IgnoreAttachedColliders(matchJoint.StickyBody, false);
+        IgnoreAllColliders(matchJoint.StickyBody, false);
         ownedJoint.UnlinkFromJoint(matchJoint);
     }
 

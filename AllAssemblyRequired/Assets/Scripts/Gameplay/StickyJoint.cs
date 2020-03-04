@@ -60,7 +60,7 @@ public class StickyJoint : MonoBehaviour
     {
         if (!IsAttachedToRoot && AttachedStickyJoint != null)
         {
-            StickyBody.IgnoreAttachedColliders(AttachedStickyJoint.StickyBody, false);
+            StickyBody.IgnoreAllColliders(AttachedStickyJoint.StickyBody, false);
             UnlinkFromJoint(AttachedStickyJoint);
         }
     }
