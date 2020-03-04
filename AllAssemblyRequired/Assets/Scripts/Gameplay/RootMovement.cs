@@ -11,7 +11,7 @@ public class RootMovement : StickyBody
         Rigidbody.mass = _rootMass;
 
         Vector3 pushDirection = GetPlayerInputDirection();
-        Vector3 pushForce = (pushDirection * _targetSpeed / _accelerationTime) * GetTotalStickyMass();
+        Vector3 pushForce = (pushDirection * _targetSpeed / _accelerationTime) * TotalStickyMass;
         Rigidbody.AddForce(pushForce, ForceMode.Force);
         ClampPlanarSpeed();
     }

@@ -11,6 +11,8 @@ public class StickyBody : MonoBehaviour
     [SerializeField, Range(0.001f, 1.0f)] private float _snapThreshold = 0.1f;
     [SerializeField, Range(0.5f, 500.0f)] private float _jointCreationTimeout = 4.0f;
 
+    private Dictionary<StickyJoint, Coroutine> _jointSetupCoroutines = new Dictionary<StickyJoint, Coroutine>();
+    private List<FixedJoint> _fixedJoints = new List<FixedJoint>();
     private StickyJoint[] _stickyJoints;
 
     public Rigidbody Rigidbody { get; private set; }
@@ -26,23 +28,37 @@ public class StickyBody : MonoBehaviour
         {
             var allStickyBodies = new HashSet<StickyBody>();
             GetAllStickyBodies(allStickyBodies);
-            return allStickyBodies.Count(stickyBody => stickyBody.IsRoot) > 0;
+            return allStickyBodies.Any(stickyBody => stickyBody.IsRoot);
         }
     }
 
-    public float GetTotalStickyMass()
+    public float TotalStickyMass
     {
-        float totalStickyMass = 0.0f;
-        var allStickyBodies = new HashSet<StickyBody>();
-
-        GetAllStickyBodies(allStickyBodies);
-
-        foreach (var stickyBody in allStickyBodies)
+        get
         {
-            totalStickyMass += stickyBody.Mass;
-        }
+            float totalStickyMass = 0.0f;
+            var allStickyBodies = new HashSet<StickyBody>();
 
-        return totalStickyMass;
+            GetAllStickyBodies(allStickyBodies);
+
+            foreach (var stickyBody in allStickyBodies)
+            {
+                totalStickyMass += stickyBody.Mass;
+            }
+
+            return totalStickyMass;
+        }
+    }
+
+    private void Awake()
+    {
+        Rigidbody = GetComponent<Rigidbody>();
+        _stickyJoints = GetComponentsInChildren<StickyJoint>();
+    }
+
+    private void Update()
+    {
+        CleanupFixedJoints();
     }
 
     public void GetAllStickyBodies(HashSet<StickyBody> allStickyBodies)
@@ -63,12 +79,6 @@ public class StickyBody : MonoBehaviour
         }
     }
 
-    private void Awake()
-    {
-        Rigidbody = GetComponent<Rigidbody>();
-        _stickyJoints = GetComponentsInChildren<StickyJoint>();
-    }
-
     /// <summary>
     /// Ignores collision between two StickyBodys' colliders.
     /// This is useful for creating their joint, and when their joint is broken, so collision detection can resume.
@@ -84,78 +94,85 @@ public class StickyBody : MonoBehaviour
         }
     }
 
-    /// <summary>Ignores collision to move the joint into position.</summary>
-    private IEnumerator MatchAttachmentPoints(StickyJoint attachmentPoint)
+    /// <summary>
+    /// Attempts to move a non-root StickyBody to align with the given StickJoint's Anchor position and rotation
+    /// Then creates a FixedJoint to permanently join this StickyBody with the given StickyJoint's StickyBody
+    /// </summary>
+    public void TryCreateJoint(StickyJoint ownedJoint, StickyJoint matchJoint)
     {
+        if (matchJoint != null &&
+            _stickyJoints.Contains(ownedJoint) &&
+            !_jointSetupCoroutines.ContainsKey(matchJoint) &&
+            !IsAttachedToRoot &&
+            matchJoint.IsAttachedToRoot)
+        {
+            _jointSetupCoroutines[matchJoint] = StartCoroutine(MoveToAnchor(ownedJoint, matchJoint));
+        }
+    }
+
+    /// <summary> Destroy all FixedJoints whose connectedBodies have been destroyed </summary>
+    private void CleanupFixedJoints()
+    {
+        for (int i = 0; i < _fixedJoints.Count; ++i)
+        {
+            if (_fixedJoints[i] != null && _fixedJoints[i].connectedBody == null)
+            {
+                Destroy(_fixedJoints[i]);
+                _fixedJoints[i] = null;
+            }
+        }
+
+        _fixedJoints.RemoveAll(joint => joint == null);
+    }
+
+    /// <summary>Ignores collision to move the joint into position.</summary>
+    // TODO: (FREEHILL 4 MAR 2020) this doesn't account for the attachmentPoint being destroyed while this is moving into place
+    private IEnumerator MoveToAnchor(StickyJoint ownedJoint, StickyJoint matchJoint)
+    {
+        IgnoreAttachedColliders(matchJoint.StickyBody, true);
+        matchJoint.StickyBody.SetKinematic(true);
+        SetKinematic(true);
+
         float timeRemaining = _jointCreationTimeout;
 
         do
         {
-            Rigidbody.rotation = Quaternion.RotateTowards(Rigidbody.rotation, attachmentPoint.Anchor.rotation, _rotationSpeed * Time.fixedDeltaTime);
-            Rigidbody.position = Vector3.MoveTowards(Rigidbody.position, attachmentPoint.Anchor.position, _linearSpeed * Time.fixedDeltaTime);
+            Rigidbody.rotation = Quaternion.RotateTowards(Rigidbody.rotation, ownedJoint.AnchorOn(matchJoint).rotation, _rotationSpeed * Time.fixedDeltaTime);
+            Rigidbody.position = Vector3.MoveTowards(Rigidbody.position, ownedJoint.AnchorOn(matchJoint).position, _linearSpeed * Time.fixedDeltaTime);
 
             yield return new WaitForFixedUpdate();
             timeRemaining -= Time.fixedDeltaTime;
 
-        } while ((Vector3.Distance(Rigidbody.position, attachmentPoint.Anchor.position) > _snapThreshold ||
-                 Quaternion.Angle(Rigidbody.rotation, attachmentPoint.Anchor.rotation) > _snapThreshold) &&
+        } while ((Vector3.Distance(Rigidbody.position, ownedJoint.AnchorOn(matchJoint).position) > _snapThreshold ||
+                 Quaternion.Angle(Rigidbody.rotation, ownedJoint.AnchorOn(matchJoint).rotation) > _snapThreshold) &&
                  timeRemaining > 0.0f);
 
-        if (timeRemaining <= 0.0f)
+        if (timeRemaining > 0.0f)
         {
-            //StopCreatingJoint(attachmentPoint);
+            CreateJoint(ownedJoint, matchJoint);
         }
         else
         {
-            SetKinematic(false);
-            attachmentPoint.StickyBody.SetKinematic(false);
-
-            _fixedJoint = Rigidbody.gameObject.AddComponent<FixedJoint>();
-            _fixedJoint.enablePreprocessing = true;
-            _fixedJoint.connectedBody = AttachedStickyJoint.Rigidbody;
-
-            // TODO: (FREEHILL 3 MAR 2020) clean up the dictionary from any lingering Coroutines (kv pairs)
-            // ...and on failure ensure the attachmentPoint returns to non-kinematic (and possibly gets destroyed/respawns elsewhere)
-            _jointBuilders.Remove(attachmentPoint);
+            DontCreateJoint(ownedJoint, matchJoint);
         }
+
+        SetKinematic(false);
+        matchJoint.StickyBody.SetKinematic(false);
+        _jointSetupCoroutines.Remove(matchJoint);
     }
 
-    // TODO: (FREEHILL 3 MAR 2020) keep a StickyBody kinematic so long as a new joint is being created
-    // ...in which case the MatchAttachmentPoints coroutine should live on the StickyBody script and handle IsKinematic calls
-    //private void StopCreatingJoint(StickyJoint attachmentPoint)
-    //{
-    //    IgnoreAttachedColliders(attachmentPoint.StickyBody, false);
-    //    SetKinematic(false);
-    //    attachmentPoint.StickyBody.SetKinematic(false);
-
-    //    AttachedStickyJoint.AttachedStickyJoint = null;
-    //    AttachedStickyJoint = null;
-
-    //    if (_creatingJoint != null)
-    //    {
-    //        StopCoroutine(_creatingJoint);
-    //        _creatingJoint = null;
-    //    }
-    //}
-
-    private Dictionary<StickyJoint, Coroutine> _jointBuilders = new Dictionary<StickyJoint, Coroutine>();
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="attachmentPoint"></param>
-    public void TryCreateJoint(StickyJoint attachmentPoint)
+    private void CreateJoint(StickyJoint ownedJoint, StickyJoint matchJoint)
     {
-        if (IsAttachedToRoot || 
-            _jointBuilders.ContainsKey(attachmentPoint))
-        {
-            return;
-        }
+        var fixedJoint = Rigidbody.gameObject.AddComponent<FixedJoint>();
+        fixedJoint.enablePreprocessing = true;
+        fixedJoint.connectedBody = matchJoint.StickyBody.Rigidbody;
+        _fixedJoints.Add(fixedJoint);
+        ownedJoint.LinkToJoint(matchJoint);
+    }
 
-        IgnoreAttachedColliders(attachmentPoint.StickyBody, true);
-        attachmentPoint.StickyBody.SetKinematic(true);
-        SetKinematic(true);
-        
-        _jointBuilders[attachmentPoint] = StartCoroutine(MatchAttachmentPoints(attachmentPoint));
+    private void DontCreateJoint(StickyJoint ownedJoint, StickyJoint matchJoint)
+    {
+        IgnoreAttachedColliders(matchJoint.StickyBody, false);
+        ownedJoint.UnlinkFromJoint(matchJoint);
     }
 }
