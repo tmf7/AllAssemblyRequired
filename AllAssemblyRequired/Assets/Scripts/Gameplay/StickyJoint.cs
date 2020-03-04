@@ -112,11 +112,11 @@ public class StickyJoint : MonoBehaviour
     [CustomEditor(typeof(StickyJoint))]
     public class StickyJointEditor : Editor
     {
-        private StickyJoint stickyJoint;
+        private StickyJoint _stickyJoint;
 
         void OnEnable()
         {
-            stickyJoint = target as StickyJoint;
+            _stickyJoint = target as StickyJoint;
         }
 
         public override void OnInspectorGUI()
@@ -124,8 +124,8 @@ public class StickyJoint : MonoBehaviour
             base.OnInspectorGUI();
             serializedObject.Update();
             GUI.enabled = false;
-            EditorGUILayout.ObjectField("StickyBody", stickyJoint.StickyBody, typeof(StickyBody), true);
-            EditorGUILayout.ObjectField("AttachedStickyJoint", stickyJoint.AttachedStickyJoint, typeof(StickyJoint), true);
+            EditorGUILayout.ObjectField("StickyBody", _stickyJoint.StickyBody, typeof(StickyBody), true);
+            EditorGUILayout.ObjectField("AttachedStickyJoint", _stickyJoint.AttachedStickyJoint, typeof(StickyJoint), true);
             GUI.enabled = true;
             serializedObject.ApplyModifiedProperties();
         }

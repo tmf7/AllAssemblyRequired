@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 [RequireComponent(typeof(Rigidbody))]
 public class StickyBody : MonoBehaviour
@@ -80,16 +83,25 @@ public class StickyBody : MonoBehaviour
     }
 
     /// <summary>
-    /// Ignores collision between two StickyBodys' colliders.
-    /// This is useful for creating their joint, and when their joint is broken, so collision detection can resume.
+    /// Ignores collision between this, the given StickyBody, and any StickyBodies attached to this
+    /// This avoid chaotic collision during joint creation, and resumes collision when a joint is broken.
     /// </summary>
     public void IgnoreAttachedColliders(StickyBody other, bool ignore)
     {
-        foreach (var collider in GetComponentsInChildren<Collider>())
+        var allStickyBodies = new HashSet<StickyBody>();
+
+        GetAllStickyBodies(allStickyBodies);
+
+        // also ignore collisions with anything else currently forming a joint (eg simultaneous joint formation over several frames)
+
+        foreach (var body in allStickyBodies)
         {
-            foreach (var attachedCollider in other.GetComponentsInChildren<Collider>())
+            foreach (var existingCollider in body.GetComponentsInChildren<Collider>())
             {
-                Physics.IgnoreCollision(collider, attachedCollider, ignore);
+                foreach (var otherCollider in other.GetComponentsInChildren<Collider>())
+                {
+                    Physics.IgnoreCollision(existingCollider, otherCollider, ignore);
+                }
             }
         }
     }
@@ -175,4 +187,29 @@ public class StickyBody : MonoBehaviour
         IgnoreAttachedColliders(matchJoint.StickyBody, false);
         ownedJoint.UnlinkFromJoint(matchJoint);
     }
+
+#if UNITY_EDITOR
+    [CustomEditor(typeof(StickyBody))]
+    public class StickyBodyEditor : Editor
+    {
+        private StickyBody _stickyBody;
+
+        void OnEnable()
+        {
+            _stickyBody = target as StickyBody;
+        }
+
+        // TODO: (FREEHILL 4 MAR 2020) something is making IsAttachedToRoot return false AFTER IsAttachedToRoot becomes true for both legs
+        // SOLUTION(?): FixedUpdate/OnTriggerEnter gets called and does something odd?
+        public override void OnInspectorGUI()
+        {
+            base.OnInspectorGUI();
+            serializedObject.Update();
+            GUI.enabled = false;
+            EditorGUILayout.Toggle(nameof(IsAttachedToRoot), _stickyBody.IsAttachedToRoot);
+            GUI.enabled = true;
+            serializedObject.ApplyModifiedProperties();
+        }
+    }
+#endif
 }
