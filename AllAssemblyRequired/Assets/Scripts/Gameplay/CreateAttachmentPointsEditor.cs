@@ -85,12 +85,16 @@ public class CreateAttachmentPointsEditor : EditorWindow
         }
     }
 
+    private Vector2 _bodiesScrollPosition;
+
     private void DrawBodies()
     {
         if (_numStickyBodies == 0)
         {
             return;
         }
+
+        _bodiesScrollPosition = EditorGUILayout.BeginScrollView(_bodiesScrollPosition);
 
         for (int i = 0; i < _stickyBodies.Length; ++i)
         {
@@ -103,17 +107,24 @@ public class CreateAttachmentPointsEditor : EditorWindow
 
             DrawJoints(ref _stickyBodies[i]);
         }
+
+        EditorGUILayout.EndScrollView();
     }
 
     private Vector3 GetBodyiesCenter()
     {
         Vector3 positionSum = Vector3.zero;
 
-        foreach (var stickyBodyInfo in _stickyBodies)
+        if (_stickyBodies == null || _stickyBodies.Length == 0)
         {
-            if (stickyBodyInfo.body != null)
+            return positionSum;
+        }
+
+        for (int i = 0; i < _stickyBodies.Length; ++i)
+        {
+            if (_stickyBodies[i].body != null)
             {
-                positionSum += stickyBodyInfo.body.transform.position;
+                positionSum += _stickyBodies[i].body.transform.position;
             }
         }
 
@@ -164,7 +175,10 @@ public class CreateAttachmentPointsEditor : EditorWindow
             attachmentPoint.transform.position = _attachmentPoint.position;
             attachmentPoint.transform.rotation = !stickyBodyInfo.flipAttachmentPose ? _attachmentPose.rotation : _counterAttachmentPose.rotation;
         }
-
+        else
+        {
+            EditorUtility.DisplayDialog($"Unassigned {nameof(StickyBody)}", $"{nameof(StickyBody)} is empty, assign to or remove that element.", "OK");
+        }
     }
 
     private void DrawAttachmentPoint()
@@ -203,16 +217,27 @@ public class CreateAttachmentPointsEditor : EditorWindow
 
         if (GUILayout.Button("Create Attachment Points"))
         {
-            if (_attachmentPoint != null)
+            if (_attachmentPoint != null && _attachmentPointPrefab != null)
             {
-                foreach (var stickyBodyInfo in _stickyBodies)
+                if (_stickyBodies != null && _stickyBodies.Length > 0)
                 {
-                    InstantiateAttachmentPoint(stickyBodyInfo);
+                    foreach (var stickyBodyInfo in _stickyBodies)
+                    {
+                        InstantiateAttachmentPoint(stickyBodyInfo);
+                    }
+                }
+                else
+                {
+                    EditorUtility.DisplayDialog($"No {nameof(StickyBody)} Assigned", $"{ObjectNames.NicifyVariableName(nameof(_stickyBodies))} needs to contain at least one {nameof(StickyBody)} reference.", "OK");
                 }
             }
-            else
+            else if (_attachmentPoint == null)
             {
                 EditorUtility.DisplayDialog("Unassigned Attachment point", $"{ObjectNames.NicifyVariableName(nameof(_attachmentPoint))} needs to be assigned to position the new attachment points.", "OK");
+            }
+            else if (_attachmentPointPrefab == null)
+            {
+                EditorUtility.DisplayDialog("Unassigned Attachment point prefab", $"{ObjectNames.NicifyVariableName(nameof(_attachmentPointPrefab))} needs to be assigned to create a {nameof(StickyJoint)}", "OK");
             }
         }
     }

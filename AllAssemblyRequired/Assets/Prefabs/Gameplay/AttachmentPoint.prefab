@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 6838426840617146018}
   - component: {fileID: 6838426840617146016}
-  - component: {fileID: 6838426840617146017}
   m_Layer: 0
   m_Name: AttachmentPoint
   m_TagString: Untagged
@@ -45,25 +44,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 680f26392bf7844459f92f5af314d702, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _rotationSpeed: 360
-  _linearSpeed: 20
-  _snapThreshold: 0.08
-  _jointCreationTimeout: 4
   _hintParticles: {fileID: 6838426839276267063}
   _hintRadius: 2
---- !u!135 &6838426840617146017
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6838426840617146019}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &6838426839260722867
 PrefabInstance:
   m_ObjectHideFlags: 0

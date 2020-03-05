@@ -6,8 +6,7 @@ using UnityEditor;
 /// <summary>Put this directly on any transform that is intended to snap to another transform via a parent rigidbody</summary>
 public class StickyJoint : MonoBehaviour
 {
-    [SerializeField] private ParticleSystem _hintParticles;
-    [SerializeField] private float _hintRadius = 0.5f;
+    private StickyJointHint _hint;
 
     public StickyBody StickyBody { get; private set; }
     public StickyJoint AttachedStickyJoint { get; private set; }
@@ -40,20 +39,18 @@ public class StickyJoint : MonoBehaviour
             Gizmos.color = Color.red;
             Gizmos.DrawSphere(AnchorOn(AttachedStickyJoint).position, 0.1f);
         }
-
-        Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(transform.position, _hintRadius);
     }
 
     private void Awake()
     {
         StickyBody = GetComponentInParent<StickyBody>();
+        _hint = GetComponentInChildren<StickyJointHint>(true);
     }
 
     private void Update()
     {
         CheckJointIntegrity();
-        _hintParticles.gameObject.SetActive(!IsAttachedToRoot && IsOpenJointInRange());
+        _hint.IsVisible = (AttachedStickyJoint == null && IsOpenJointInRange(true) || (IsOpenJointInRange(false) && IsAttachedToRoot));
     }
 
     private void CheckJointIntegrity()
@@ -66,16 +63,12 @@ public class StickyJoint : MonoBehaviour
     }
 
     /// <summary> Returns true if there is an non-attached StickyJoint within the hint radius </summary>
-    private bool IsOpenJointInRange()
+    private bool IsOpenJointInRange(bool checkForRoot)
     {
-        var currentOverlapping = Physics.OverlapSphere(transform.position, _hintRadius);
-
-        foreach (var possibleRoot in currentOverlapping)
+        foreach (var stickyJoint in _hint.GetAllJointsInRange())
         {
-            var stickyJoint = possibleRoot.GetComponent<StickyJoint>();
-
-            if (stickyJoint != null && 
-                stickyJoint.StickyBody != StickyBody &&
+            if (stickyJoint.StickyBody != StickyBody &&
+                ((checkForRoot && stickyJoint.IsAttachedToRoot) || !checkForRoot) &&
                 stickyJoint.AttachedStickyJoint == null)
             {
                 return true;
@@ -85,9 +78,9 @@ public class StickyJoint : MonoBehaviour
         return false;
     }
 
-    private void OnTriggerEnter(Collider otherCollider)
+    public void TryCreateJointWith(StickyJoint other)
     {
-        StickyBody.TryCreateJoint(this, otherCollider.GetComponent<StickyJoint>());
+        StickyBody.TryCreateJoint(this, other);
     }
 
     public void LinkToJoint(StickyJoint other)

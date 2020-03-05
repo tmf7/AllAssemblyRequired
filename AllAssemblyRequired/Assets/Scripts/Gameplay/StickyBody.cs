@@ -15,9 +15,11 @@ public class StickyBody : MonoBehaviour
     [SerializeField, Range(0.5f, 500.0f)] private float _jointCreationTimeout = 4.0f;
 
     private Dictionary<StickyJoint, Coroutine> _jointSetupCoroutines = new Dictionary<StickyJoint, Coroutine>();
+    private HashSet<StickyBody> _ignoredCollisionBodies = new HashSet<StickyBody>();
     private List<FixedJoint> _fixedJoints = new List<FixedJoint>();
     private StickyJoint[] _stickyJoints;
 
+    //public IEnumerable<StickyBody> IgnoredCollisionBodies => _ignoredCollisionBodies;
     public Rigidbody Rigidbody { get; private set; }
     public float Mass => Rigidbody.mass;
     public bool IsRoot => GetComponent<RootMovement>() != null;
@@ -70,13 +72,16 @@ public class StickyBody : MonoBehaviour
         {
             allStickyBodies.Add(this);
 
-            foreach (var joint in _stickyJoints)
+            if (_stickyJoints != null)
             {
-                var attachedStickyBody = joint.AttachedStickyBody;
-
-                if (attachedStickyBody != null)
+                for (int i = 0; i < _stickyJoints.Length; ++i)
                 {
-                    attachedStickyBody.GetAllStickyBodies(allStickyBodies);
+                    var attachedStickyBody = _stickyJoints[i].AttachedStickyBody;
+
+                    if (attachedStickyBody != null)
+                    {
+                        attachedStickyBody.GetAllStickyBodies(allStickyBodies);
+                    }
                 }
             }
         }
@@ -89,21 +94,52 @@ public class StickyBody : MonoBehaviour
     public void IgnoreAllColliders(StickyBody other, bool ignore)
     {
         var allStickyBodies = new HashSet<StickyBody>();
+        var allOtherStickyBodies = new HashSet<StickyBody>();
 
         GetAllStickyBodies(allStickyBodies);
-        other.GetAllStickyBodies(allStickyBodies);
+        other.GetAllStickyBodies(allOtherStickyBodies);
 
-        var allColliders = allStickyBodies.SelectMany(body => body.GetComponentsInChildren<Collider>(true)).ToArray();
-
-        if (allColliders.Length >= 2)
+        // account for prior calls to IgnoreAllColliders by other StickyBodies
+        // for example: another StickyBody that is still moving to form a joint but not officially attached
+        // to avoid a three-stooges-in-the-doorway situation
+        foreach (var body in _ignoredCollisionBodies)
         {
-            for (int i = 0; i < allColliders.Length - 1; ++i)
+            allStickyBodies.Add(body);
+        }
+
+        foreach (var otherBody in other._ignoredCollisionBodies)
+        {
+            allOtherStickyBodies.Add(otherBody);
+        }
+
+        UpdateIgnoredCollisionBodies(allOtherStickyBodies, ignore);
+        other.UpdateIgnoredCollisionBodies(allStickyBodies, ignore);
+
+        // stop ignoring collision between the this StickyBody and all other incoming StickyBodies, NOT amongst my own attached/attaching StickyBodies
+        var allColliders = allStickyBodies.SelectMany(body => body.GetComponentsInChildren<Collider>(true)).ToArray();
+        var allOtherColliders = allOtherStickyBodies.SelectMany(otherBody => otherBody.GetComponentsInChildren<Collider>(true)).ToArray();
+
+        foreach (var collider in allColliders)
+        {
+            foreach (var otherCollider in allOtherColliders)
             {
-                for (int j = i + 1; j < allColliders.Length; ++j)
-                {
-                    Physics.IgnoreCollision(allColliders[i], allColliders[j], ignore);
-                }
+                Physics.IgnoreCollision(collider, otherCollider, ignore);
             }
+        }
+    }
+
+    private void UpdateIgnoredCollisionBodies(HashSet<StickyBody> otherStickyBodies, bool ignore)
+    {
+        if (ignore)
+        {
+            foreach (var otherBody in otherStickyBodies)
+            {
+                _ignoredCollisionBodies.Add(otherBody);
+            }
+        }
+        else
+        {
+            _ignoredCollisionBodies.RemoveWhere(ignoredBody => otherStickyBodies.Contains(ignoredBody));
         }
     }
 
