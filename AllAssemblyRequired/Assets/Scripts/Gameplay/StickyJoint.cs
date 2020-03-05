@@ -50,7 +50,7 @@ public class StickyJoint : MonoBehaviour
     private void Update()
     {
         CheckJointIntegrity();
-        _hint.IsVisible = (AttachedStickyJoint == null && IsOpenJointInRange(true) || (IsOpenJointInRange(false) && IsAttachedToRoot));
+        _hint.IsVisible = (AttachedStickyJoint == null && (IsOpenJointInRange(true) || IsOpenJointInRange(false)));
     }
 
     private void CheckJointIntegrity()
@@ -68,7 +68,7 @@ public class StickyJoint : MonoBehaviour
         foreach (var stickyJoint in _hint.GetAllJointsInRange())
         {
             if (stickyJoint.StickyBody != StickyBody &&
-                ((checkForRoot && stickyJoint.IsAttachedToRoot) || !checkForRoot) &&
+                ((checkForRoot && stickyJoint.IsAttachedToRoot) || (!checkForRoot && IsAttachedToRoot)) &&
                 stickyJoint.AttachedStickyJoint == null)
             {
                 return true;

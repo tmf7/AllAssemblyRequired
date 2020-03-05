@@ -149,6 +149,10 @@ public class StickyBody : MonoBehaviour
     /// </summary>
     public void TryCreateJoint(StickyJoint ownedJoint, StickyJoint matchJoint)
     {
+        // TODO: (FREEHILL 5 MAR 2020) do nothing if this body is already moving to occupy a joint
+        // TODO: (FREEHILL 5 MAR 2020) do nothing if the ownedJoint is occupied
+
+
         if (matchJoint != null &&
             _stickyJoints.Contains(ownedJoint) &&
             !_jointSetupCoroutines.ContainsKey(matchJoint) &&
