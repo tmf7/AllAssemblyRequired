@@ -14,12 +14,23 @@ public class StickyBody : MonoBehaviour
     [SerializeField, Range(0.001f, 1.0f)] private float _snapThreshold = 0.1f;
     [SerializeField, Range(0.5f, 500.0f)] private float _jointCreationTimeout = 4.0f;
 
-    private Dictionary<StickyJoint, Coroutine> _jointSetupCoroutines = new Dictionary<StickyJoint, Coroutine>();
+    private class JointSetupCoroutine
+    {
+        public StickyJoint MatchJoint { get; private set; }
+        public Coroutine Coroutine { get; private set; }
+
+        public JointSetupCoroutine(StickyJoint matchJoint, Coroutine coroutine)
+        {
+            MatchJoint = matchJoint;
+            Coroutine = coroutine;
+        }
+    }
+
+    private JointSetupCoroutine _jointSetupCoroutine = null;
     private HashSet<StickyBody> _ignoredCollisionBodies = new HashSet<StickyBody>();
     private List<FixedJoint> _fixedJoints = new List<FixedJoint>();
     private StickyJoint[] _stickyJoints;
 
-    //public IEnumerable<StickyBody> IgnoredCollisionBodies => _ignoredCollisionBodies;
     public Rigidbody Rigidbody { get; private set; }
     public float Mass => Rigidbody.mass;
     public bool IsRoot => GetComponent<RootMovement>() != null;
@@ -37,6 +48,7 @@ public class StickyBody : MonoBehaviour
         }
     }
 
+    /// <summary> Returns the sum total mass of all StickyBodies attached to this StickyBody </summary>
     public float TotalStickyMass
     {
         get
@@ -66,6 +78,7 @@ public class StickyBody : MonoBehaviour
         CleanupFixedJoints();
     }
 
+    /// <summary> Populates the given set with this StickyBody and all StickyBodies attached it via all of its StickyJoints </summary>
     public void GetAllStickyBodies(HashSet<StickyBody> allStickyBodies)
     {
         if (!allStickyBodies.Contains(this))
@@ -84,6 +97,38 @@ public class StickyBody : MonoBehaviour
                     }
                 }
             }
+        }
+    }
+
+    /// <summary>
+    /// Returns true if there is any StickyBody moving to occupy the given StickyJoint, returns false otherwise
+    /// </summary>
+    /// <param name="ownedJoint"> The joint to check if there's StickyBody moving to occupy with one if its joints </param>
+    public bool IsCreatingJointFor(StickyJoint ownedJoint)
+    {
+        if (ownedJoint != null && _stickyJoints.Contains(ownedJoint))
+        {
+            return _ignoredCollisionBodies.Any(body => (body._jointSetupCoroutine != null && body._jointSetupCoroutine.MatchJoint == ownedJoint));
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Attempts to move a non-root StickyBody to align with the given StickJoint's Anchor position and rotation
+    /// Then creates a FixedJoint to permanently join this StickyBody with the given StickyJoint's StickyBody
+    /// </summary>
+    public void TryCreateJoint(StickyJoint ownedJoint, StickyJoint matchJoint)
+    {
+        if (matchJoint != null &&                                 // do not form a joint with nothingness
+            _stickyJoints.Contains(ownedJoint) &&                 // confirm this body owns the ownedJoint so the correct Anchor position can be calulated
+            _jointSetupCoroutine == null &&                       // this body is not already creating a joint
+            !IsAttachedToRoot &&                                  // this body is not part of the root assembly
+            matchJoint.IsAttachedToRoot &&                        // the match joint is part of the root assembly
+            matchJoint.AttachedStickyJoint == null &&             // nothing is already attached to the match joint
+            !matchJoint.IsCreatingJoint)                          // nothing moving to occpuy the same match joint
+        {
+            _jointSetupCoroutine = new JointSetupCoroutine(matchJoint, StartCoroutine(MoveToAnchor(ownedJoint, matchJoint)));
         }
     }
 
@@ -143,26 +188,6 @@ public class StickyBody : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Attempts to move a non-root StickyBody to align with the given StickJoint's Anchor position and rotation
-    /// Then creates a FixedJoint to permanently join this StickyBody with the given StickyJoint's StickyBody
-    /// </summary>
-    public void TryCreateJoint(StickyJoint ownedJoint, StickyJoint matchJoint)
-    {
-        // TODO: (FREEHILL 5 MAR 2020) do nothing if this body is already moving to occupy a joint
-        // TODO: (FREEHILL 5 MAR 2020) do nothing if the ownedJoint is occupied
-
-
-        if (matchJoint != null &&
-            _stickyJoints.Contains(ownedJoint) &&
-            !_jointSetupCoroutines.ContainsKey(matchJoint) &&
-            !IsAttachedToRoot &&
-            matchJoint.IsAttachedToRoot)
-        {
-            _jointSetupCoroutines[matchJoint] = StartCoroutine(MoveToAnchor(ownedJoint, matchJoint));
-        }
-    }
-
     /// <summary> Destroy all FixedJoints whose connectedBodies have been destroyed </summary>
     private void CleanupFixedJoints()
     {
@@ -211,7 +236,7 @@ public class StickyBody : MonoBehaviour
 
         SetKinematic(false);
         matchJoint.StickyBody.SetKinematic(false);
-        _jointSetupCoroutines.Remove(matchJoint);
+        _jointSetupCoroutine = null;
     }
 
     private void CreateJoint(StickyJoint ownedJoint, StickyJoint matchJoint)
@@ -223,6 +248,7 @@ public class StickyBody : MonoBehaviour
         ownedJoint.LinkToJoint(matchJoint);
     }
 
+    // TODO: (FREEHILL 5 MAR 2020) possibly destroy or teleport this StickyBody so it doesn't linger alongside the matchJoint
     private void DontCreateJoint(StickyJoint ownedJoint, StickyJoint matchJoint)
     {
         IgnoreAllColliders(matchJoint.StickyBody, false);
@@ -240,8 +266,6 @@ public class StickyBody : MonoBehaviour
             _stickyBody = target as StickyBody;
         }
 
-        // TODO: (FREEHILL 4 MAR 2020) something is making IsAttachedToRoot return false AFTER IsAttachedToRoot becomes true for both legs
-        // SOLUTION(?): FixedUpdate/OnTriggerEnter gets called and does something odd?
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();

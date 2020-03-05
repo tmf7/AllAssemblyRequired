@@ -30,6 +30,8 @@ public class StickyJoint : MonoBehaviour
         return new Pose(Rigidbody.position, Rigidbody.rotation);
     }
 
+    public bool IsCreatingJoint => StickyBody.IsCreatingJointFor(this);
+
     private void OnDrawGizmosSelected()
     {
         if (AttachedStickyJoint != null)
