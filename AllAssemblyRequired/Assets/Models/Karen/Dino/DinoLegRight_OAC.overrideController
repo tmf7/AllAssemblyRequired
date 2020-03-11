@@ -1,0 +1,15 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!221 &22100000
+AnimatorOverrideController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: DinoLegRight_OAC
+  m_Controller: {fileID: 9100000, guid: a82459824bff17b44bcde585ad81c2eb, type: 2}
+  m_Clips:
+  - m_OriginalClip: {fileID: 1827226128182048838, guid: 691ce35b0d48ea840a7b3b6edca80655,
+      type: 3}
+    m_OverrideClip: {fileID: 1827226128182048838, guid: 4f9bb79012e7fbe45a6cebf88bf38d23,
+      type: 3}
