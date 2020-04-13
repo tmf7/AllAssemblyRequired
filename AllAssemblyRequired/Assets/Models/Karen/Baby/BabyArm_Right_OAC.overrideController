@@ -1,0 +1,15 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!221 &22100000
+AnimatorOverrideController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: BabyArm_Right_OAC
+  m_Controller: {fileID: 9100000, guid: ba9fe24faffc5d64fb5e5f6fd5a9b6c5, type: 2}
+  m_Clips:
+  - m_OriginalClip: {fileID: 1827226128182048838, guid: 68bed5438d29a5d41b537b7c04bf5e22,
+      type: 3}
+    m_OverrideClip: {fileID: 1827226128182048838, guid: 4de686d81ef32b342a268eac6bdaebcf,
+      type: 3}

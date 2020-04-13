@@ -1,0 +1,15 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!221 &22100000
+AnimatorOverrideController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: BabyLeg_Right_OAC
+  m_Controller: {fileID: 9100000, guid: 48df9f49a97eefa43a480df0daa68e97, type: 2}
+  m_Clips:
+  - m_OriginalClip: {fileID: 1827226128182048838, guid: 4c13dd10e4f12d343af6dd3a5fdfda8d,
+      type: 3}
+    m_OverrideClip: {fileID: 1827226128182048838, guid: 6d2d943437d4f8e46979f5a5541d8fc5,
+      type: 3}
